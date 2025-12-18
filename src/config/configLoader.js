@@ -1,4 +1,5 @@
 const REMOTE_URL = import.meta.env?.VITE_CONFIG_ENDPOINT
+const REMOTE_TOKEN = import.meta.env?.VITE_CONFIG_TOKEN
 
 export const hasRemote = Boolean(REMOTE_URL)
 
@@ -10,7 +11,10 @@ export async function loadConfig() {
   // حاول القراءة من مصدر خارجي إن توفر
   if (hasRemote) {
     try {
-      const res = await fetch(REMOTE_URL, { cache: 'no-cache' })
+      const res = await fetch(REMOTE_URL, {
+        cache: 'no-cache',
+        headers: REMOTE_TOKEN ? { Authorization: `Bearer ${REMOTE_TOKEN}` } : undefined,
+      })
       if (res.ok) return await res.json()
     } catch {}
   }
@@ -27,7 +31,10 @@ export async function saveConfigRemote(cfg) {
   if (!hasRemote) throw new Error('REMOTE endpoint not configured')
   const res = await fetch(REMOTE_URL, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(REMOTE_TOKEN ? { Authorization: `Bearer ${REMOTE_TOKEN}` } : {}),
+    },
     body: JSON.stringify(cfg)
   })
   if (!res.ok) throw new Error(`Remote save failed: ${res.status}`)
