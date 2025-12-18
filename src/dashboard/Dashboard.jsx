@@ -1465,13 +1465,7 @@ export default function Dashboard() {
           <div className="panel">
             <div className="panel-header">
               <div className="panel-title">الإعدادات العامة</div>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-                <span>لغة العرض:</span>
-                <select value={lang} onChange={(e) => setLang(e.target.value)} className="btn-outline">
-                  <option value="en">EN</option>
-                  <option value="ar">AR</option>
-                </select>
-              </div>
+      
             </div>
 
             <div className="form-grid">
