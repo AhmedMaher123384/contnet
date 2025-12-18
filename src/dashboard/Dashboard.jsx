@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react'
 import { useConfig } from '../config/ConfigContext.jsx'
-import { downloadConfig } from '../config/configLoader.js'
+import { downloadConfig, saveConfigRemote, hasRemote } from '../config/configLoader.js'
 
 function ColorInput({ label, value, onChange }) {
   return (
@@ -43,8 +43,35 @@ export default function Dashboard() {
     } catch {}
   }
 
-  function handleSaveAndRefresh() {
-    try { saveToBrowser() } finally { refreshPreview() }
+  async function handleSaveAndRefresh() {
+    try {
+      if (hasRemote) {
+        await saveConfigRemote(config)
+      }
+      saveToBrowser()
+      if (hasRemote) {
+        alert('تم حفظ الإعدادات عالميًا (سيرفر) وبالمتصفح.')
+      } else {
+        alert('تم الحفظ في المتصفح. لإتاحة الحفظ العام، قم بإعداد VITE_CONFIG_ENDPOINT.')
+      }
+    } catch (e) {
+      console.error(e)
+      alert('تعذّر الحفظ على السيرفر، تم الحفظ محليًا فقط.')
+    } finally {
+      refreshPreview()
+    }
+  }
+
+  async function handleRemoteSave() {
+    try {
+      await saveConfigRemote(config)
+      alert('تم حفظ الإعدادات على السيرفر بنجاح.')
+    } catch (e) {
+      console.error(e)
+      alert('تعذّر الحفظ على السيرفر. تأكد من إعداد نقطة النهاية VITE_CONFIG_ENDPOINT وإعدادات CORS/التصريح.')
+    } finally {
+      refreshPreview()
+    }
   }
 
   function setTheme(key, v) { cfg.theme[key] = v; setConfig(cfg) }
@@ -128,7 +155,7 @@ export default function Dashboard() {
           <button className={active === 'data' ? 'active' : ''} onClick={() => setActive('data')}>حفظ / تصدير</button>
         </div>
         <div className="sidebar-actions">
-          <button className="btn" onClick={handleSaveAndRefresh}>حفظ في المتصفح</button>
+          <button className="btn" onClick={handleSaveAndRefresh}>حفظ</button>
           <button className="btn-outline" onClick={() => downloadConfig(config)}>تنزيل JSON</button>
           <button className="btn-ghost" onClick={() => { localStorage.removeItem('siteConfig'); window.location.reload() }}>إعادة التعيين</button>
           <label className="form-row" style={{ gap: 8 }}>
@@ -447,7 +474,7 @@ export default function Dashboard() {
           <div className="panel">
             <div className="panel-header"><div className="panel-title">حفظ / تصدير</div><div className="panel-desc">إدارة النسخ والحفظ</div></div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <button className="btn" onClick={handleSaveAndRefresh}>حفظ في المتصفح</button>
+              <button className="btn" onClick={handleSaveAndRefresh}>حفظ</button>
               <button className="btn-outline" onClick={() => downloadConfig(config)}>تنزيل JSON</button>
               <button className="btn-ghost" onClick={() => { localStorage.removeItem('siteConfig'); window.location.reload() }}>إعادة التعيين</button>
             </div>

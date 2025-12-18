@@ -1,14 +1,37 @@
+const REMOTE_URL = import.meta.env?.VITE_CONFIG_ENDPOINT
+
+export const hasRemote = Boolean(REMOTE_URL)
+
 export async function loadConfig() {
   try {
     const override = localStorage.getItem('siteConfig')
     if (override) return JSON.parse(override)
   } catch {}
-  const res = await fetch('/config.json')
+  // حاول القراءة من مصدر خارجي إن توفر
+  if (hasRemote) {
+    try {
+      const res = await fetch(REMOTE_URL, { cache: 'no-cache' })
+      if (res.ok) return await res.json()
+    } catch {}
+  }
+  // رجوع للملف المحلي كافتراضي
+  const res = await fetch('/config.json', { cache: 'no-cache' })
   return res.json()
 }
 
 export function saveConfig(cfg) {
   localStorage.setItem('siteConfig', JSON.stringify(cfg))
+}
+
+export async function saveConfigRemote(cfg) {
+  if (!hasRemote) throw new Error('REMOTE endpoint not configured')
+  const res = await fetch(REMOTE_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cfg)
+  })
+  if (!res.ok) throw new Error(`Remote save failed: ${res.status}`)
+  return true
 }
 
 export function downloadConfig(cfg, filename = 'config.json') {
