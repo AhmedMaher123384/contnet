@@ -11,7 +11,8 @@ export async function loadConfig() {
   // حاول القراءة من مصدر خارجي إن توفر
   if (hasRemote) {
     try {
-      const res = await fetch(REMOTE_URL, {
+      const url = REMOTE_URL + (REMOTE_URL.includes('?') ? '&' : '?') + 'v=' + Date.now()
+      const res = await fetch(url, {
         cache: 'no-cache',
         headers: REMOTE_TOKEN ? { Authorization: `Bearer ${REMOTE_TOKEN}` } : undefined,
       })
@@ -19,7 +20,7 @@ export async function loadConfig() {
     } catch {}
   }
   // رجوع للملف المحلي كافتراضي
-  const res = await fetch('/config.json', { cache: 'no-cache' })
+  const res = await fetch('/config.json?v=' + Date.now(), { cache: 'no-cache' })
   return res.json()
 }
 

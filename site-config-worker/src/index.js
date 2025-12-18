@@ -38,7 +38,13 @@ export default {
       const val = await env.SITE_CONFIG.get(key)
       const body = val ?? '{}'
       return new Response(body, {
-        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...cors },
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          ...cors,
+        },
       })
     }
 
@@ -62,7 +68,14 @@ export default {
         return new Response('Bad Request: invalid JSON', { status: 400, headers: cors })
       }
       await env.SITE_CONFIG.put(key, text)
-      return new Response('ok', { headers: cors })
+      return new Response('ok', {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          ...cors,
+        },
+      })
     }
 
     return new Response('Method Not Allowed', { status: 405, headers: cors })
