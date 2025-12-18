@@ -19,6 +19,14 @@
       { "label": { "en": "Contact", "ar": "تواصل" }, "href": "#contact" }
     ],
     "footerText": { "en": "Building simple, modern solutions.", "ar": "نقدّم حلولًا بسيطة وعصرية." }
+    ,
+    "cloudinary": {
+      "cloud_name": "dm3tq1nt7",
+      "upload_preset": "ecommerce",
+      "folder": "sample/ecommerce",
+      "max_image_bytes": 2097152,
+      "max_video_bytes": 52428800
+    }
   },
   "sections": {
     "navbar": {

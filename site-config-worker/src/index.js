@@ -19,13 +19,48 @@ export default {
 
     const cors = {
       'Access-Control-Allow-Origin': allowedOrigin || '*',
-      'Access-Control-Allow-Methods': 'GET,PUT,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,PUT,POST,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type,Authorization',
     }
 
     // Preflight
     if (request.method === 'OPTIONS') {
       return new Response('', { headers: cors })
+    }
+
+    // Cloudinary signing endpoint (POST)
+    if (url.pathname === '/cloudinary/sign' && request.method === 'POST') {
+      try {
+        const body = await request.json()
+        const timestamp = Number(body?.timestamp) || Math.floor(Date.now() / 1000)
+        const folder = String(body?.folder || '')
+        const public_id = body?.public_id ? String(body.public_id) : ''
+        const overwrite = body?.overwrite === true ? 'true' : (body?.overwrite === false ? 'false' : '')
+
+        const api_key = env.CLOUDINARY_API_KEY
+        const api_secret = env.CLOUDINARY_API_SECRET
+        const cloud_name = env.CLOUDINARY_CLOUD_NAME
+
+        if (!api_key || !api_secret || !cloud_name) {
+          return new Response(JSON.stringify({ error: 'Cloudinary env not configured' }), { status: 500, headers: { 'Content-Type': 'application/json', ...cors } })
+        }
+
+        const parts = []
+        if (folder) parts.push(`folder=${folder}`)
+        if (public_id) parts.push(`public_id=${public_id}`)
+        if (overwrite) parts.push(`overwrite=${overwrite}`)
+        parts.push(`timestamp=${timestamp}`)
+        const stringToSign = parts.sort().join('&') + api_secret
+
+        const enc = new TextEncoder()
+        const buf = await crypto.subtle.digest('SHA-1', enc.encode(stringToSign))
+        const signature = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('')
+
+        const resp = { signature, timestamp, api_key, cloud_name }
+        return new Response(JSON.stringify(resp), { headers: { 'Content-Type': 'application/json', ...cors } })
+      } catch (err) {
+        return new Response(JSON.stringify({ error: 'Bad Request', details: err?.message || 'unknown' }), { status: 400, headers: { 'Content-Type': 'application/json', ...cors } })
+      }
     }
 
     if (url.pathname !== '/config') {

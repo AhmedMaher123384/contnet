@@ -19,7 +19,10 @@
 		}
 	],
 	"vars": {
-		"ALLOWED_ORIGINS": "http://localhost:5177,https://content-dash.netlify.app"
+		"ALLOWED_ORIGINS": "http://localhost:5177,https://content-dash.netlify.app",
+		"CLOUDINARY_CLOUD_NAME": "",
+		"CLOUDINARY_API_KEY": "",
+		"CLOUDINARY_API_SECRET": ""
 	}
 	/**
 	 * Smart Placement

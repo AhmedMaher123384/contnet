@@ -3,24 +3,53 @@ const REMOTE_TOKEN = import.meta.env?.VITE_CONFIG_TOKEN
 
 export const hasRemote = Boolean(REMOTE_URL)
 
+function isObject(x) { return x && typeof x === 'object' && !Array.isArray(x) }
+
+function deepMerge(base, override) {
+  if (!isObject(base)) return override
+  if (!isObject(override)) return base
+  const out = { ...base }
+  for (const k of Object.keys(override)) {
+    const bv = base[k]
+    const ov = override[k]
+    if (isObject(bv) && isObject(ov)) {
+      out[k] = deepMerge(bv, ov)
+    } else {
+      out[k] = ov
+    }
+  }
+  return out
+}
+
 export async function loadConfig() {
+  // اقرأ القيم الافتراضية دومًا لضمان إدراج الحقول الجديدة (مثل cloudinary)
+  let base = {}
   try {
-    const override = localStorage.getItem('siteConfig')
-    if (override) return JSON.parse(override)
+    const resBase = await fetch('/config.json?v=' + Date.now(), { cache: 'no-cache' })
+    base = await resBase.json()
   } catch {}
-  // حاول القراءة من مصدر خارجي إن توفر
+
+  // أولوية: نسخة المتصفح ← نسخة بعيدة ← الافتراضية
+  try {
+    const overrideStr = localStorage.getItem('siteConfig')
+    if (overrideStr) {
+      const override = JSON.parse(overrideStr)
+      return deepMerge(base, override)
+    }
+  } catch {}
+
   if (hasRemote) {
     try {
       const url = REMOTE_URL + (REMOTE_URL.includes('?') ? '&' : '?') + 'v=' + Date.now()
-      const res = await fetch(url, {
-        cache: 'no-cache'
-      })
-      if (res.ok) return await res.json()
+      const res = await fetch(url, { cache: 'no-cache' })
+      if (res.ok) {
+        const remoteCfg = await res.json()
+        return deepMerge(base, remoteCfg)
+      }
     } catch {}
   }
-  // رجوع للملف المحلي كافتراضي
-  const res = await fetch('/config.json?v=' + Date.now(), { cache: 'no-cache' })
-  return res.json()
+
+  return base
 }
 
 export function saveConfig(cfg) {

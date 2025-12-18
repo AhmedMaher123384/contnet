@@ -73,13 +73,30 @@ const ColorInput = ({ label, value, onChange, required = false }) => {
   );
 };
 
-const URLInput = ({ label, value, onChange, placeholder = '', dir = 'ltr', required = false }) => {
+const URLInput = ({ label, value, onChange, placeholder = '', dir = 'ltr', required = false, accept = 'image/*' }) => {
   const [error, setError] = useState(false);
-  const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-
+  // قبول أنواع متعددة من الروابط:
+  // - http/https
+  // - روابط داخلية تبدأ بـ #
+  // - روابط صور مرفوعة بصيغة data:image/*
+  // - روابط نسبية تبدأ بـ / أو ./
+  // - mailto: و tel:
   const validate = (v) => {
     if (!required && !v) return true;
-    return v && urlRegex.test(v);
+    if (!v) return false;
+    if (v.startsWith('#')) return true;
+    if (v.startsWith('data:image/')) return true;
+    if (/^https?:\/\//.test(v)) return true;
+    if (/^(mailto:|tel:)/.test(v)) return true;
+    if (/^(\/|\.\/)/.test(v)) return true;
+    // محاولة أخيرة: إن كان المتصفح يقبل إنشاء URL منه
+    try {
+      // سيقبل فقط الروابط المطلقة، لذا هذا للتأكد الإضافي
+      new URL(v);
+      return true;
+    } catch (_) {
+      return false;
+    }
   };
 
   const handleChange = (v) => {
@@ -100,29 +117,97 @@ const URLInput = ({ label, value, onChange, placeholder = '', dir = 'ltr', requi
           dir={dir}
           className={error ? 'input-error' : ''}
         />
-        <UploadImageButton onUpload={handleChange} />
+        <UploadImageButton onUpload={handleChange} accept={accept} />
       </div>
       {error && <span className="error-hint">رابط غير صالح</span>}
     </div>
   );
 };
 
-const UploadImageButton = ({ onUpload }) => {
+const UploadImageButton = ({ onUpload, accept = 'image/*' }) => {
   const fileInputRef = useRef(null);
+  const { config } = useConfig();
 
   const handleUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!file.type.match('image.*')) {
-      alert('الملف ليس صورة. يُرجى اختيار صورة (JPEG, PNG, GIF).');
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    const allowImage = accept.includes('image');
+    const allowVideo = accept.includes('video');
+    if ((!isImage && !isVideo) || (isImage && !allowImage) || (isVideo && !allowVideo)) {
+      alert(allowVideo && !allowImage
+        ? 'الملف ليس فيديو. يُرجى اختيار فيديو (MP4, WebM, MOV).'
+        : allowImage && !allowVideo
+        ? 'الملف ليس صورة. يُرجى اختيار صورة (JPEG, PNG, GIF).'
+        : 'نوع الملف غير مدعوم.');
       return;
     }
     try {
-      const reader = new FileReader();
-      reader.onload = () => {
-        onUpload(reader.result);
-      };
-      reader.readAsDataURL(file);
+      const cloudCfg = config?.site?.cloudinary || {}
+      const cloudName = cloudCfg.cloud_name || import.meta.env?.VITE_CLOUDINARY_CLOUD_NAME
+      const uploadPreset = cloudCfg.upload_preset || import.meta.env?.VITE_CLOUDINARY_UPLOAD_PRESET
+      const apiKey = cloudCfg.api_key || import.meta.env?.VITE_CLOUDINARY_API_KEY
+      const signUrl = cloudCfg.sign_url || import.meta.env?.VITE_CLOUDINARY_SIGN_URL
+      const folder = cloudCfg.folder || import.meta.env?.VITE_CLOUDINARY_FOLDER || 'uploads'
+      const maxImageBytes = (cloudCfg.max_image_bytes || (2 * 1024 * 1024)) // 2MB افتراضيًا
+      const maxVideoBytes = (cloudCfg.max_video_bytes || (50 * 1024 * 1024)) // 50MB افتراضيًا
+
+      // منع رفع ملفات أكبر من الحد الأقصى المحدد بحسب النوع
+      if (isImage && file.size > maxImageBytes) {
+        alert('حجم الصورة يتجاوز الحد الأقصى 2MB. يُرجى تقليل حجمها ثم إعادة المحاولة.')
+        return
+      }
+      if (isVideo && file.size > maxVideoBytes) {
+        const mb = Math.round(maxVideoBytes / (1024 * 1024))
+        alert(`حجم الفيديو يتجاوز الحد الأقصى ${mb}MB. يُرجى تقليل حجمه ثم إعادة المحاولة.`)
+        return
+      }
+
+      const uploadUnsigned = async () => {
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('upload_preset', uploadPreset)
+        if (folder) fd.append('folder', folder)
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, { method: 'POST', body: fd })
+        if (!res.ok) throw new Error('فشل الرفع غير الموقّع')
+        const data = await res.json()
+        return data.secure_url || data.url
+      }
+
+      const uploadSigned = async () => {
+        const timestamp = Math.floor(Date.now() / 1000)
+        const resSign = await fetch(signUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timestamp, folder })
+        })
+        if (!resSign.ok) throw new Error('فشل الحصول على التوقيع')
+        const { signature, api_key: keyFromWorker, cloud_name: cloudFromWorker, timestamp: tsFromWorker } = await resSign.json()
+        const fd = new FormData()
+        fd.append('file', file)
+        fd.append('timestamp', String(tsFromWorker || timestamp))
+        fd.append('api_key', String(keyFromWorker || apiKey))
+        if (folder) fd.append('folder', folder)
+        fd.append('signature', signature)
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudFromWorker || cloudName}/auto/upload`, { method: 'POST', body: fd })
+        if (!res.ok) throw new Error('فشل الرفع الموقّع')
+        const data = await res.json()
+        return data.secure_url || data.url
+      }
+
+      let url = ''
+      const canUnsigned = Boolean(cloudName && uploadPreset)
+      const canSigned = Boolean(signUrl)
+      if (canSigned) {
+        url = await uploadSigned()
+      } else if (canUnsigned) {
+        url = await uploadUnsigned()
+      } else {
+        alert('الرفع إلى Cloudinary غير مُعد. يُرجى إعداد "cloud_name" و"upload_preset" أو توفير "sign_url" للرفع الموقّع. لا يتم دعم التحويل إلى Base64 لتجنب مشاكل السعة.')
+        return
+      }
+      onUpload(url)
     } catch (err) {
       alert('حدث خطأ أثناء قراءة الملف.');
     }
@@ -134,13 +219,13 @@ const UploadImageButton = ({ onUpload }) => {
         type="button"
         className="btn-upload"
         onClick={() => fileInputRef.current?.click()}
-        title="رفع صورة"
+        title={accept.includes('video') && !accept.includes('image') ? 'رفع فيديو' : accept.includes('video') && accept.includes('image') ? 'رفع ملف' : 'رفع صورة'}
       >
         📤 رفع
       </button>
       <input
         type="file"
-        accept="image/*"
+        accept={accept}
         ref={fileInputRef}
         onChange={handleUpload}
         style={{ display: 'none' }}
@@ -387,7 +472,7 @@ const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLab
 // =============== لوحة التحكم ===============
 export default function Dashboard() {
   const { config, setConfig, updateConfig, t, lang, setLang, saveToBrowser, lastSavedAt, unsaved } = useConfig();
-  const [editLang, setEditLang] = useState(lang);
+  const [editLang, setEditLang] = useState('ar');
   const [active, setActive] = useState('theme');
   const [livePreview, setLivePreview] = useState(false);
   const [showPreview, setShowPreview] = useState(window.innerWidth > 768); // default hidden on mobile
@@ -427,6 +512,74 @@ export default function Dashboard() {
   };
   const setHeroCTA = (key, v) => { cfg.sections.hero.cta[key][editLang] = v; setConfig(cfg); };
   const setAboutImage = (v) => { cfg.sections.about.image = v; setConfig(cfg); };
+
+  // ======== وسائط الهيرو (صورة/كاروسيل/فيديو) ========
+  const ensureHeroMedia = () => { cfg.sections.hero.media = cfg.sections.hero.media || { type: 'image' }; };
+  const setHeroMediaType = (type) => { ensureHeroMedia(); cfg.sections.hero.media.type = type; setConfig(cfg); };
+  const setHeroOverlayMode = (mode) => { cfg.sections.hero.overlayMode = mode; setConfig(cfg); };
+  const setHeroImage = (v) => { ensureHeroMedia(); cfg.sections.hero.media.image = v; cfg.sections.hero.backgroundImage = v; setConfig(cfg); };
+  const addHeroSlide = () => {
+    ensureHeroMedia();
+    const slides = cfg.sections.hero.media.slides || [];
+    slides.push({ src: '', overlay: { text: { en: '', ar: '' }, button: { text: { en: '', ar: '' }, link: '' } } });
+    cfg.sections.hero.media.slides = slides;
+    setConfig(cfg);
+  };
+  const updateHeroSlideSrc = (i, v) => {
+    ensureHeroMedia();
+    const slides = cfg.sections.hero.media.slides || [];
+    slides[i] = slides[i] || { src: '', overlay: { text: { en: '', ar: '' }, button: { text: { en: '', ar: '' }, link: '' } } };
+    slides[i].src = v;
+    cfg.sections.hero.media.slides = slides;
+    setConfig(cfg);
+  };
+  const updateHeroSlideOverlayText = (i, v) => {
+    ensureHeroMedia();
+    const s = cfg.sections.hero.media.slides?.[i] || (cfg.sections.hero.media.slides[i] = { src: '', overlay: {} });
+    s.overlay = s.overlay || {};
+    s.overlay.text = s.overlay.text || { en: '', ar: '' };
+    s.overlay.text[editLang] = v;
+    setConfig(cfg);
+  };
+  const updateHeroSlideButtonText = (i, v) => {
+    ensureHeroMedia();
+    const s = cfg.sections.hero.media.slides?.[i] || (cfg.sections.hero.media.slides[i] = { src: '', overlay: {} });
+    s.overlay = s.overlay || {};
+    s.overlay.button = s.overlay.button || { text: { en: '', ar: '' }, link: '' };
+    s.overlay.button.text[editLang] = v;
+    setConfig(cfg);
+  };
+  const updateHeroSlideButtonLink = (i, v) => {
+    ensureHeroMedia();
+    const s = cfg.sections.hero.media.slides?.[i] || (cfg.sections.hero.media.slides[i] = { src: '', overlay: {} });
+    s.overlay = s.overlay || {};
+    s.overlay.button = s.overlay.button || { text: { en: '', ar: '' }, link: '' };
+    s.overlay.button.link = v;
+    setConfig(cfg);
+  };
+  const removeHeroSlide = (i) => {
+    ensureHeroMedia();
+    const slides = cfg.sections.hero.media.slides || [];
+    slides.splice(i, 1);
+    cfg.sections.hero.media.slides = slides;
+    setConfig(cfg);
+  };
+  const moveHeroSlide = (i, dir) => {
+    ensureHeroMedia();
+    const slides = cfg.sections.hero.media.slides || [];
+    const j = dir === 'up' ? i - 1 : i + 1;
+    if (j < 0 || j >= slides.length) return;
+    const [s] = slides.splice(i, 1);
+    slides.splice(j, 0, s);
+    cfg.sections.hero.media.slides = slides;
+    setConfig(cfg);
+  };
+  const setHeroVideo = (key, v) => {
+    ensureHeroMedia();
+    cfg.sections.hero.media.video = cfg.sections.hero.media.video || { src: '', autoplay: false, loop: false, muted: true, poster: '' };
+    cfg.sections.hero.media.video[key] = v;
+    setConfig(cfg);
+  };
 
   // ======== خيارات الخطوط الجاهزة ========
   const FONT_OPTIONS = useMemo(() => ([
@@ -614,7 +767,14 @@ export default function Dashboard() {
       );
     } catch (e) {
       console.error(e);
-      alert('تعذّر الحفظ على السيرفر، تم الحفظ محليًا فقط.');
+      const msg = String(e?.message || e || '')
+      const isQuota = msg.includes('QuotaExceeded') || msg.toLowerCase().includes('quota')
+      if (isQuota) {
+        alert('سعة تخزين المتصفح ممتلئة (QuotaExceeded). السبب غالبًا صور Base64 كبيرة. يُفضّل تفعيل Cloudinary أو تنزيل الإعدادات كملف الآن.')
+        try { downloadConfig(config, 'config-backup.json') } catch {}
+      } else {
+        alert('تعذّر الحفظ. تحقق من إعدادات السيرفر أو جرّب التنزيل كملف.')
+      }
     } finally {
       refreshPreview();
     }
@@ -663,7 +823,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <style jsx>{`
+      <style>{`
         :root {
           --burgundy: #6D0019;
           --burgundy-light: #8B0025;
@@ -1273,6 +1433,13 @@ export default function Dashboard() {
               )}
             </div>
             <div className="topbar-right">
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <span>تحرير بـ:</span>
+                <select value={editLang} onChange={(e) => setEditLang(e.target.value)} className="btn-outline">
+                  <option value="ar">العربية</option>
+                  <option value="en">الإنجليزية</option>
+                </select>
+              </div>
               <button className="btn btn-outline" onClick={() => { window.location.hash = '#'; }}>
                 عرض الموقع
               </button>
@@ -1303,11 +1470,6 @@ export default function Dashboard() {
                 <select value={lang} onChange={(e) => setLang(e.target.value)} className="btn-outline">
                   <option value="en">EN</option>
                   <option value="ar">AR</option>
-                </select>
-                <span>تحرير بـ:</span>
-                <select value={editLang} onChange={(e) => setEditLang(e.target.value)} className="btn-outline">
-                  <option value="en">الإنجليزية</option>
-                  <option value="ar">العربية</option>
                 </select>
               </div>
             </div>
@@ -1510,12 +1672,142 @@ export default function Dashboard() {
                   placeholder={editLang === 'ar' ? 'https://...' : 'https://...'}
                   required
                 />
-                <URLInput
-                  label="صورة الخلفية"
-                  value={cfg.sections.hero.backgroundImage || ''}
-                  onChange={(v) => { cfg.sections.hero.backgroundImage = v; setConfig(cfg); }}
-                  placeholder={editLang === 'ar' ? 'رابط الصورة أو ارفع ملفًا' : 'Background image URL or upload'}
-                />
+                {(() => {
+                  const mediaType = cfg.sections.hero.media?.type || (cfg.sections.hero.backgroundImage ? 'image' : 'image')
+                  const slides = cfg.sections.hero.media?.slides || []
+                  return (
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div className="panel-header" style={{ marginTop: 8 }}>
+                        <div className="panel-title">وسائط الهيرو</div>
+                        <div className="panel-desc">اختر صورة واحدة، كاروسيل، أو فيديو</div>
+                      </div>
+                      <div className="form-grid" style={{ marginTop: 8 }}>
+                        <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                          <label>نوع الوسائط</label>
+                          <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <input type="radio" name="hero-media-type" checked={mediaType === 'image'} onChange={() => setHeroMediaType('image')} /> صورة واحدة
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <input type="radio" name="hero-media-type" checked={mediaType === 'carousel'} onChange={() => setHeroMediaType('carousel')} /> كاروسيل صور
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <input type="radio" name="hero-media-type" checked={mediaType === 'video'} onChange={() => setHeroMediaType('video')} /> فيديو
+                            </label>
+                          </div>
+                        </div>
+
+                        {mediaType === 'image' && (
+                          <URLInput
+                            label={editLang === 'ar' ? 'صورة الخلفية' : 'Background image'}
+                            value={(cfg.sections.hero.media?.image || cfg.sections.hero.backgroundImage || '')}
+                            onChange={(v) => setHeroImage(v)}
+                            placeholder={editLang === 'ar' ? 'رابط الصورة أو ارفع ملفًا' : 'Background image URL or upload'}
+                          />
+                        )}
+
+                        {mediaType === 'carousel' && (
+                          <div style={{ gridColumn: '1 / -1' }}>
+                            <div className="form-grid">
+                              <div className="form-group">
+                                <label>وضع المحتوى</label>
+                                <select
+                                  value={cfg.sections.hero.overlayMode || 'global'}
+                                  onChange={(e) => setHeroOverlayMode(e.target.value)}
+                                  className="btn-outline"
+                                >
+                                  <option value="global">ثابت عالمي (من العنوان والزر أعلاه)</option>
+                                  <option value="per-slide">مخصص لكل صورة</option>
+                                </select>
+                              </div>
+                              <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                <button className="btn btn-outline" onClick={addHeroSlide}>إضافة صورة</button>
+                              </div>
+                            </div>
+
+                            <div className="row-grid" style={{ marginTop: 12 }}>
+                              {slides.map((s, i) => (
+                                <div key={i} className="panel" style={{ padding: 12 }}>
+                                  <div className="panel-header">
+                                    <div className="panel-title">صورة {i + 1}</div>
+                                    <div style={{ display: 'flex', gap: 6 }}>
+                                      <button className="btn btn-outline" onClick={() => moveHeroSlide(i, 'up')}>↑</button>
+                                      <button className="btn btn-outline" onClick={() => moveHeroSlide(i, 'down')}>↓</button>
+                                      <button className="btn btn-ghost" onClick={() => safeDelete(() => removeHeroSlide(i), 'هل أنت متأكد من حذف هذه الصورة؟')}>حذف</button>
+                                    </div>
+                                  </div>
+                                  <div className="form-grid">
+                                    <URLInput
+                                      label={editLang === 'ar' ? 'رابط الصورة' : 'Image URL'}
+                                      value={s.src || ''}
+                                      onChange={(v) => updateHeroSlideSrc(i, v)}
+                                      placeholder={editLang === 'ar' ? 'رابط أو رفع' : 'URL or upload'}
+                                    />
+                                    { (cfg.sections.hero.overlayMode || 'global') === 'per-slide' && (
+                                      <>
+                                        <TextInput
+                                          label={editLang === 'ar' ? 'نص الصورة' : 'Slide text'}
+                                          value={(s.overlay?.text?.[editLang] || '')}
+                                          onChange={(v) => updateHeroSlideOverlayText(i, v)}
+                                          dir={dir}
+                                          placeholder={editLang === 'ar' ? 'نص مختصر للصورة' : 'Short text for this slide'}
+                                        />
+                                        <TextInput
+                                          label={editLang === 'ar' ? 'نص الزر (اختياري)' : 'Button text (optional)'}
+                                          value={(s.overlay?.button?.text?.[editLang] || '')}
+                                          onChange={(v) => updateHeroSlideButtonText(i, v)}
+                                          dir={dir}
+                                          placeholder={editLang === 'ar' ? 'مثال: تعرّف أكثر' : 'e.g., Learn more'}
+                                        />
+                                        <URLInput
+                                          label={editLang === 'ar' ? 'رابط الزر (اختياري)' : 'Button link (optional)'}
+                                          value={(s.overlay?.button?.link || '')}
+                                          onChange={(v) => updateHeroSlideButtonLink(i, v)}
+                                          placeholder={editLang === 'ar' ? '# أو https://...' : '# or https://...'}
+                                        />
+                                      </>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {mediaType === 'video' && (
+                          <div style={{ gridColumn: '1 / -1' }}>
+                            <div className="form-grid">
+                              <URLInput
+                                label={editLang === 'ar' ? 'رابط الفيديو' : 'Video URL'}
+                                value={(cfg.sections.hero.media?.video?.src || '')}
+                                onChange={(v) => setHeroVideo('src', v)}
+                                placeholder="https://..."
+                                accept="video/*"
+                              />
+                              <URLInput
+                                label={editLang === 'ar' ? 'صورة الغلاف (Poster)' : 'Poster image'}
+                                value={(cfg.sections.hero.media?.video?.poster || '')}
+                                onChange={(v) => setHeroVideo('poster', v)}
+                                placeholder={editLang === 'ar' ? 'اختياري' : 'Optional'}
+                              />
+                            </div>
+                            <div style={{ display: 'flex', gap: 12, marginTop: 10 }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <input type="checkbox" checked={!!(cfg.sections.hero.media?.video?.autoplay)} onChange={(e) => setHeroVideo('autoplay', e.target.checked)} /> تشغيل تلقائي
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <input type="checkbox" checked={!!(cfg.sections.hero.media?.video?.loop)} onChange={(e) => setHeroVideo('loop', e.target.checked)} /> تكرار
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <input type="checkbox" checked={!!(cfg.sections.hero.media?.video?.muted ?? true)} onChange={(e) => setHeroVideo('muted', e.target.checked)} /> صامت
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })()}
               </div>
 
               <div className="panel-header" style={{ marginTop: 24 }}>

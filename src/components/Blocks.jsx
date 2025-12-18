@@ -1,5 +1,6 @@
 import React from 'react'
 import { useConfig } from '../config/ConfigContext.jsx'
+import { getExternalLinkProps } from '../utils/links.js'
 
 function cssSize(v) {
   if (v === undefined || v === null || v === '') return undefined
@@ -38,7 +39,7 @@ function Block({ block, t }) {
       const href = props.link || '#'
       return (
         <div className="custom-block block-button" style={style}>
-          <a className={className} href={href}>{t(props.text)}</a>
+          <a className={className} href={href} {...getExternalLinkProps(href)}>{t(props.text)}</a>
         </div>
       )
     }

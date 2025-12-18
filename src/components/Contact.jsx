@@ -1,5 +1,6 @@
 import React from 'react'
 import { useConfig } from '../config/ConfigContext.jsx'
+import { getExternalLinkProps } from '../utils/links.js'
 
 export default function Contact() {
   const { config, t } = useConfig()
@@ -21,7 +22,7 @@ export default function Contact() {
           {contact.phone ? <p><strong>Phone:</strong> <a href={`tel:${contact.phone}`}>{contact.phone}</a></p> : null}
           {contact.address ? <p><strong>Address:</strong> {t(contact.address)}</p> : null}
           {(contact.links || []).map((l, i) => (
-            <a key={i} href={l.url} target="_blank" rel="noreferrer">{t(l.label)}</a>
+            <a key={i} href={l.url} {...getExternalLinkProps(l.url)}>{t(l.label)}</a>
           ))}
         </div>
       </div>

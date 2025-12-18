@@ -1,5 +1,6 @@
 import React from 'react'
 import { useConfig } from '../config/ConfigContext.jsx'
+import { getExternalLinkProps } from '../utils/links.js'
 
 export default function Footer({ style }) {
   const { config, t } = useConfig()
@@ -33,7 +34,7 @@ export default function Footer({ style }) {
                 {col.title && <div className="footer-col-title">{t(col.title)}</div>}
                 <ul className="footer-links">
                   {(col.links || []).map((link, j) => (
-                    <li key={j}><a href={link.href || '#'}>{t(link.label || { en: '', ar: '' })}</a></li>
+                    <li key={j}><a href={link.href || '#'} {...getExternalLinkProps(link.href || '#')}>{t(link.label || { en: '', ar: '' })}</a></li>
                   ))}
                 </ul>
               </div>

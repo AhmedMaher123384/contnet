@@ -7,6 +7,7 @@ import Contact from './components/Contact.jsx'
 import Dashboard from './dashboard/Dashboard.jsx'
 import BlocksAt from './components/Blocks.jsx'
 import Footer from './components/Footer.jsx'
+import { getExternalLinkProps } from './utils/links.js'
 
 function Shell({ children }) {
   const { config, t, lang, setLang } = useConfig()
@@ -41,7 +42,7 @@ function Shell({ children }) {
           </div>
           <nav className="nav-links">
             {menu.map((item, i) => (
-              <a key={i} href={item.href}>{t(item.label)}</a>
+              <a key={i} href={item.href} {...getExternalLinkProps(item.href)}>{t(item.label)}</a>
             ))}
             <select aria-label={t({ en: 'Language', ar: 'اللغة' })} value={lang} onChange={(e) => setLang(e.target.value)} style={{ marginLeft: 18, padding: '6px 10px', borderRadius: 10, border: '1px solid color-mix(in srgb, var(--color-text) 15%, transparent)', background: 'transparent', color: 'var(--color-text)' }}>
               <option value="en">English</option>
