@@ -1,5 +1,8 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useConfig } from '../config/ConfigContext.jsx';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { downloadConfig, saveConfigRemote, hasRemote } from '../config/configLoader.js';
 
 // =============== مكونات مخصصة ===============
@@ -16,7 +19,7 @@ const ConfirmModal = ({ isOpen, onClose, onConfirm, message, confirmText = "تأ
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
-
+ 
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()} ref={dialogRef} tabIndex="-1">
@@ -171,9 +174,219 @@ const TextInput = ({ label, value, onChange, dir, placeholder, required = false 
   );
 };
 
+// عنصر قابل للسحب لترتيب الأقسام
+const SectionOrderItem = ({ id, label }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    padding: '10px 12px',
+    border: '1px dashed color-mix(in srgb, var(--color-text) 25%, transparent)',
+    borderRadius: 10,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    background: 'color-mix(in srgb, var(--color-text) 3%, transparent)'
+  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span aria-hidden="true">↕️</span>
+        {label}
+      </span>
+      <span className="badge">سحب لإعادة الترتيب</span>
+    </div>
+  )
+}
+
+// عنصر خدمة قابل للسحب لإعادة الترتيب
+const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateServiceIcon, safeDelete, removeService }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
+        <input
+          type="text"
+          value={svc.icon}
+          onChange={(e) => updateServiceIcon(i, e.target.value)}
+          style={{ textAlign: 'center', fontSize: '1.5rem' }}
+          placeholder="•"
+        />
+        <TextInput
+          label="العنوان"
+          value={svc.title[editLang] || ''}
+          onChange={(v) => updateService(i, 'title', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'عنوان الخدمة' : 'Service title'}
+          required
+        />
+        <TextInput
+          label="الوصف"
+          value={svc.description[editLang] || ''}
+          onChange={(v) => updateService(i, 'description', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button
+          className="btn btn-ghost"
+          onClick={() => safeDelete(() => removeService(i), 'هل أنت متأكد من حذف هذه الخدمة؟')}
+        >
+          حذف
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر رابط تواصل قابل للسحب لإعادة الترتيب
+const LinkRowSortable = ({ id, link, i, editLang, dir, updateLinkLabel, updateLinkUrl, safeDelete, removeLink }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="الاسم"
+          value={link.label[editLang] || ''}
+          onChange={(v) => updateLinkLabel(i, v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
+          required
+        />
+        <URLInput
+          label="الرابط"
+          value={link.url || ''}
+          onChange={(v) => updateLinkUrl(i, v)}
+          placeholder="https://..."
+          required
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeLink(i), 'هل أنت متأكد من حذف هذا الرابط؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر عمود فوتر قابل للسحب لإعادة الترتيب
+const FooterColumnSortable = ({ id, col, i, editLang, dir, updateFooterColumnTitle, addFooterLink, updateFooterLinkLabel, updateFooterLinkHref, removeFooterLink, removeFooterColumn, setConfig, cfg, safeDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="panel" {...attributes} {...listeners}>
+      <div className="panel-header">
+        <div className="panel-title">عمود {i + 1}</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button className="btn btn-outline" aria-label="اسحب لإعادة الترتيب">↕️</button>
+          <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFooterColumn(i), 'هل أنت متأكد من حذف هذا العمود؟')}>حذف</button>
+        </div>
+      </div>
+
+      <TextInput
+        label="العنوان"
+        value={col.title?.[editLang] || ''}
+        onChange={(v) => updateFooterColumnTitle(i, v)}
+        dir={dir}
+        placeholder={editLang === 'ar' ? 'مثال: الشركة' : 'e.g., Company'}
+        required
+      />
+
+      <div className="panel-header" style={{ marginTop: 16 }}>
+        <div className="panel-title">
+          روابط <span className="badge">{(col.links || []).length}</span>
+        </div>
+        <button className="btn btn-outline" onClick={() => addFooterLink(i)}>إضافة رابط</button>
+      </div>
+
+      <div className="row-grid" style={{ marginTop: 12 }}>
+        {(() => {
+          const links = (col.links || []).map((l, j) => ({ l, j }));
+          const linkIds = links.map(({ j }) => `${i}-${j}`);
+          return (
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={({ active, over }) => {
+                if (!over || active.id === over.id) return;
+                const oldIndex = Number(String(active.id).split('-')[1]);
+                const newIndex = Number(String(over.id).split('-')[1]);
+                const arr = cfg.sections.footer.main.columns[i].links || [];
+                const newArr = arrayMove(arr, oldIndex, newIndex);
+                cfg.sections.footer.main.columns[i].links = newArr;
+                setConfig(cfg);
+              }}
+            >
+              <SortableContext items={linkIds} strategy={verticalListSortingStrategy}>
+                {links.map(({ l, j }) => (
+                  <FooterLinkSortable
+                    key={`${i}-${j}`}
+                    id={`${i}-${j}`}
+                    link={l}
+                    i={i}
+                    j={j}
+                    editLang={editLang}
+                    dir={dir}
+                    updateFooterLinkLabel={updateFooterLinkLabel}
+                    updateFooterLinkHref={updateFooterLinkHref}
+                    removeFooterLink={removeFooterLink}
+                    safeDelete={safeDelete}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          )
+        })()}
+      </div>
+    </div>
+  )
+}
+
+// عنصر رابط داخل عمود الفوتر قابل للسحب
+const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLabel, updateFooterLinkHref, removeFooterLink, safeDelete }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition
+  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="الاسم"
+          value={link.label?.[editLang] || ''}
+          onChange={(e) => updateFooterLinkLabel(i, j, e.target.value)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
+          required
+        />
+        <URLInput
+          label="الرابط"
+          value={link.href || ''}
+          onChange={(e) => updateFooterLinkHref(i, j, e.target.value)}
+          placeholder="# أو https://..."
+          required
+        />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <button className="btn btn-outline" aria-label="اسحب لإعادة الترتيب">↕️</button>
+          <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFooterLink(i, j), 'هل أنت متأكد من حذف هذا الرابط؟')}>حذف</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // =============== لوحة التحكم ===============
 export default function Dashboard() {
-  const { config, setConfig, t, lang, setLang, saveToBrowser } = useConfig();
+  const { config, setConfig, updateConfig, t, lang, setLang, saveToBrowser, lastSavedAt, unsaved } = useConfig();
   const [editLang, setEditLang] = useState(lang);
   const [active, setActive] = useState('theme');
   const [livePreview, setLivePreview] = useState(false);
@@ -214,6 +427,56 @@ export default function Dashboard() {
   };
   const setHeroCTA = (key, v) => { cfg.sections.hero.cta[key][editLang] = v; setConfig(cfg); };
   const setAboutImage = (v) => { cfg.sections.about.image = v; setConfig(cfg); };
+
+  // ======== خيارات الخطوط الجاهزة ========
+  const FONT_OPTIONS = useMemo(() => ([
+    // النظام
+    { id: 'system', label: 'النظام (System)', cssFamily: 'system-ui, sans-serif', googleName: null, category: 'latin' },
+    // لاتيني (Sans-Serif)
+    { id: 'inter', label: 'Inter', cssFamily: 'Inter, system-ui, sans-serif', googleName: 'Inter', category: 'latin' },
+    { id: 'roboto', label: 'Roboto', cssFamily: 'Roboto, system-ui, sans-serif', googleName: 'Roboto', category: 'latin' },
+    { id: 'open-sans', label: 'Open Sans', cssFamily: '"Open Sans", system-ui, sans-serif', googleName: 'Open+Sans', category: 'latin' },
+    { id: 'montserrat', label: 'Montserrat', cssFamily: 'Montserrat, system-ui, sans-serif', googleName: 'Montserrat', category: 'latin' },
+    { id: 'poppins', label: 'Poppins', cssFamily: 'Poppins, system-ui, sans-serif', googleName: 'Poppins', category: 'latin' },
+    { id: 'lato', label: 'Lato', cssFamily: 'Lato, system-ui, sans-serif', googleName: 'Lato', category: 'latin' },
+    { id: 'source-sans-3', label: 'Source Sans 3', cssFamily: '"Source Sans 3", system-ui, sans-serif', googleName: 'Source+Sans+3', category: 'latin' },
+    // لاتيني (Serif)
+    { id: 'merriweather', label: 'Merriweather', cssFamily: 'Merriweather, serif', googleName: 'Merriweather', category: 'latin' },
+    { id: 'playfair-display', label: 'Playfair Display', cssFamily: '"Playfair Display", serif', googleName: 'Playfair+Display', category: 'latin' },
+    // عربي
+    { id: 'cairo', label: 'Cairo (عربي)', cssFamily: 'Cairo, system-ui, sans-serif', googleName: 'Cairo', category: 'arabic' },
+    { id: 'tajawal', label: 'Tajawal (عربي)', cssFamily: 'Tajawal, system-ui, sans-serif', googleName: 'Tajawal', category: 'arabic' },
+    { id: 'almarai', label: 'Almarai (عربي)', cssFamily: 'Almarai, system-ui, sans-serif', googleName: 'Almarai', category: 'arabic' },
+    { id: 'ibm-plex-arabic', label: 'IBM Plex Sans Arabic', cssFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif', googleName: 'IBM+Plex+Sans+Arabic', category: 'arabic' },
+    { id: 'noto-kufi-arabic', label: 'Noto Kufi Arabic', cssFamily: '"Noto Kufi Arabic", system-ui, sans-serif', googleName: 'Noto+Kufi+Arabic', category: 'arabic' }
+  ]), []);
+
+  const findOptionByFamily = useCallback((family) => FONT_OPTIONS.find(o => o.cssFamily === (family || '')) || FONT_OPTIONS.find(o => o.id === 'system'), [FONT_OPTIONS]);
+  const selectedTextId = useMemo(() => (FONT_OPTIONS.find(o => o.cssFamily === (cfg?.theme?.typography?.fontFamily || ''))?.id || 'system'), [cfg, FONT_OPTIONS]);
+  const selectedHeadingId = useMemo(() => (FONT_OPTIONS.find(o => o.cssFamily === (cfg?.theme?.typography?.headingFamily || ''))?.id || 'system'), [cfg, FONT_OPTIONS]);
+
+  const buildFontUrl = useCallback((ids) => {
+    const names = ids
+      .map(id => FONT_OPTIONS.find(o => o.id === id)?.googleName)
+      .filter(Boolean);
+    if (!names.length) return '';
+    const families = names.map(n => `family=${n}:wght@400;500;700`).join('&');
+    return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+  }, [FONT_OPTIONS]);
+
+  const onSelectFont = useCallback((type, id) => {
+    const opt = FONT_OPTIONS.find(o => o.id === id);
+    if (!opt) return;
+    // عيّن العائلة المختارة
+    cfg.theme.typography = cfg.theme.typography || { fontFamily: '', headingFamily: '', fontUrl: '' };
+    cfg.theme.typography[type] = opt.cssFamily;
+    // كوّن رابط التحميل بناءً على النص + العناوين
+    const otherType = type === 'fontFamily' ? 'headingFamily' : 'fontFamily';
+    const otherOpt = findOptionByFamily(cfg.theme.typography[otherType]);
+    const url = buildFontUrl([id, otherOpt.id]);
+    cfg.theme.typography.fontUrl = url;
+    setConfig(cfg);
+  }, [cfg, FONT_OPTIONS, buildFontUrl, findOptionByFamily, setConfig]);
 
   // ======== مديريات المحتوى (مع تأكيد عبر Modal) ========
   const safeDelete = (callback, message) => {
@@ -330,6 +593,13 @@ export default function Dashboard() {
     ensureFooter();
     cfg.sections.footer.bottom = cfg.sections.footer.bottom || { text: { en: '', ar: '' } };
     cfg.sections.footer.bottom.text[editLang] = v;
+    setConfig(cfg);
+  };
+
+  // Typography (global)
+  const setTypography = (key, v) => {
+    cfg.theme.typography = cfg.theme.typography || { fontFamily: '', headingFamily: '', fontUrl: '' };
+    cfg.theme.typography[key] = v;
     setConfig(cfg);
   };
 
@@ -952,6 +1222,12 @@ export default function Dashboard() {
             </button>
 
             <div className="nav-section">الأقسام</div>
+            <button
+              className={`nav-item ${active === 'layout' ? 'active' : ''}`}
+              onClick={() => { setActive('layout'); setMobileMenuOpen(false); }}
+            >
+              📐 ترتيب الأقسام
+            </button>
             {['hero', 'about', 'services', 'contact', 'footer', 'custom'].map((key) => (
               <button
                 key={key}
@@ -990,6 +1266,11 @@ export default function Dashboard() {
           <div className="dashboard-topbar">
             <div className="topbar-left">
               <span className="badge">القسم: {activeLabel}</span>
+              {lastSavedAt && (
+                <span className="badge" aria-live="polite" style={{ marginInlineStart: 8 }}>
+                  {unsaved ? 'يوجد تغييرات غير محفوظة' : `آخر حفظ منذ ${Math.max(0, Math.round((Date.now() - lastSavedAt)/1000))}ث`}
+                </span>
+              )}
             </div>
             <div className="topbar-right">
               <button className="btn btn-outline" onClick={() => { window.location.hash = '#'; }}>
@@ -1109,6 +1390,73 @@ export default function Dashboard() {
                   <ColorInput label="نص الهيدر" value={(cfg.sections.navbar?.colors || {}).text || ''} onChange={(v) => setNavbarColor('text', v)} required />
                   <ColorInput label="خلفية الفوتر" value={(cfg.sections.footer?.colors || {}).background || ''} onChange={(v) => setFooterColor('background', v)} />
                   <ColorInput label="نص الفوتر" value={(cfg.sections.footer?.colors || {}).text || ''} onChange={(v) => setFooterColor('text', v)} required />
+                </div>
+              </div>
+
+              <div className="panel">
+                <div className="panel-header">
+                  <div className="panel-title">الخطوط</div>
+                  <div className="panel-desc">تحكم احترافي في نوع الخط للنص والعناوين، مع إمكانية تحميل خط خارجي</div>
+                </div>
+                <div className="row-grid row-2" style={{ marginTop: 8 }}>
+                  <div className="form-group">
+                    <label>اختر خط النص</label>
+                    <select className="input" value={selectedTextId} onChange={(e) => onSelectFont('fontFamily', e.target.value)}>
+                      <optgroup label="خطوط عربية">
+                        {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
+                          <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="خطوط لاتينية">
+                        {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
+                          <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>اختر خط العناوين</label>
+                    <select className="input" value={selectedHeadingId} onChange={(e) => onSelectFont('headingFamily', e.target.value)}>
+                      <optgroup label="خطوط عربية">
+                        {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
+                          <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="خطوط لاتينية">
+                        {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
+                          <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
+                        ))}
+                      </optgroup>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-grid">
+                  <TextInput
+                    label="خط النص"
+                    value={(cfg.theme.typography?.fontFamily || '')}
+                    onChange={(v) => setTypography('fontFamily', v)}
+                    dir={dir}
+                    placeholder={editLang === 'ar' ? 'مثال: Cairo, system-ui' : 'e.g., Inter, system-ui'}
+                  />
+                  <TextInput
+                    label="خط العناوين"
+                    value={(cfg.theme.typography?.headingFamily || '')}
+                    onChange={(v) => setTypography('headingFamily', v)}
+                    dir={dir}
+                    placeholder={editLang === 'ar' ? 'مثال: Cairo, serif' : 'e.g., Inter, serif'}
+                  />
+                  <URLInput
+                    label={editLang === 'ar' ? 'رابط CSS للخط (اختياري)' : 'Font CSS URL (optional)'}
+                    value={(cfg.theme.typography?.fontUrl || '')}
+                    onChange={(v) => setTypography('fontUrl', v)}
+                    placeholder={editLang === 'ar' ? 'https://fonts.googleapis.com/css2?...' : 'https://fonts.googleapis.com/css2?...'}
+                    dir="ltr"
+                  />
+                </div>
+                <div className="panel-desc" style={{ marginTop: 8 }}>
+                  {editLang === 'ar'
+                    ? 'اكتب أسماء العائلات مفصولة بفواصل. في حال إضافة رابط CSS سيتم تحميل الخط تلقائيًا.'
+                    : 'Write font families comma-separated. If a CSS URL is provided, the font will be loaded automatically.'}
                 </div>
               </div>
             </>
@@ -1290,53 +1638,50 @@ export default function Dashboard() {
               />
 
               <div className="row-grid" style={{ marginTop: 20 }}>
-                {cfg.sections.services.items
-                  .map((svc, i) => ({ svc, i }))
-                  .filter(({ svc }) => {
-                    const q = svcFilter.trim().toLowerCase();
-                    if (!q) return true;
-                    return (
-                      (svc.title[editLang] || '').toLowerCase().includes(q) ||
-                      (svc.description[editLang] || '').toLowerCase().includes(q) ||
-                      (svc.icon || '').toLowerCase().includes(q)
-                    );
-                  })
-                  .map(({ svc, i }) => (
-                    <div key={i} className="row-cta">
-                      <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
-                        <input
-                          type="text"
-                          value={svc.icon}
-                          onChange={(e) => updateServiceIcon(i, e.target.value)}
-                          style={{ textAlign: 'center', fontSize: '1.5rem' }}
-                          placeholder="•"
-                        />
-                        <TextInput
-                          label="العنوان"
-                          value={svc.title[editLang] || ''}
-                          onChange={(v) => updateService(i, 'title', v)}
-                          dir={dir}
-                          placeholder={editLang === 'ar' ? 'عنوان الخدمة' : 'Service title'}
-                          required
-                        />
-                        <TextInput
-                          label="الوصف"
-                          value={svc.description[editLang] || ''}
-                          onChange={(v) => updateService(i, 'description', v)}
-                          dir={dir}
-                          placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
-                        />
-                        <button className="btn btn-outline" onClick={() => moveService(i, 'up')}>↑</button>
-                        <button className="btn btn-outline" onClick={() => moveService(i, 'down')}>↓</button>
-                        <button
-                          className="btn btn-ghost"
-                          onClick={() => safeDelete(() => removeService(i), 'هل أنت متأكد من حذف هذه الخدمة؟')}
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                {(() => {
+                  const filtered = cfg.sections.services.items
+                    .map((svc, i) => ({ svc, i }))
+                    .filter(({ svc }) => {
+                      const q = svcFilter.trim().toLowerCase();
+                      if (!q) return true;
+                      return (
+                        (svc.title[editLang] || '').toLowerCase().includes(q) ||
+                        (svc.description[editLang] || '').toLowerCase().includes(q) ||
+                        (svc.icon || '').toLowerCase().includes(q)
+                      );
+                    });
+                  const itemsIds = filtered.map(({ i }) => i);
+                  return (
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={({ active, over }) => {
+                        if (!over || active.id === over.id) return;
+                        const oldIndex = active.id;
+                        const newIndex = over.id;
+                        const newItems = arrayMove(cfg.sections.services.items, oldIndex, newIndex);
+                        cfg.sections.services.items = newItems;
+                        setConfig(cfg);
+                      }}
+                    >
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {filtered.map(({ svc, i }) => (
+                          <ServiceRowSortable
+                            key={i}
+                            id={i}
+                            svc={svc}
+                            i={i}
+                            editLang={editLang}
+                            dir={dir}
+                            updateService={updateService}
+                            updateServiceIcon={updateServiceIcon}
+                            safeDelete={safeDelete}
+                            removeService={removeService}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
               </div>
 
               <div className="panel-header" style={{ marginTop: 24 }}>
@@ -1419,40 +1764,46 @@ export default function Dashboard() {
                 <button className="btn btn-outline" onClick={addLink}>إضافة رابط</button>
               </div>
               <div className="row-grid" style={{ marginTop: 12 }}>
-                {cfg.sections.contact.links
-                  .map((l, i) => ({ l, i }))
-                  .filter(({ l }) => {
-                    const q = linkFilter.trim().toLowerCase();
-                    if (!q) return true;
-                    return (l.label[editLang] || '').toLowerCase().includes(q) || (l.url || '').toLowerCase().includes(q);
-                  })
-                  .map(({ l, i }) => (
-                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
-                      <TextInput
-                        label="الاسم"
-                        value={l.label[editLang] || ''}
-                        onChange={(v) => updateLinkLabel(i, v)}
-                        dir={dir}
-                        placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
-                        required
-                      />
-                      <URLInput
-                        label="الرابط"
-                        value={l.url || ''}
-                        onChange={(v) => updateLinkUrl(i, v)}
-                        placeholder="https://..."
-                        required
-                      />
-                      <button className="btn btn-outline" onClick={() => moveLink(i, 'up')}>↑</button>
-                      <button className="btn btn-outline" onClick={() => moveLink(i, 'down')}>↓</button>
-                      <button
-                        className="btn btn-ghost"
-                        onClick={() => safeDelete(() => removeLink(i), 'هل أنت متأكد من حذف هذا الرابط؟')}
-                      >
-                        حذف
-                      </button>
-                    </div>
-                  ))}
+                {(() => {
+                  const filtered = cfg.sections.contact.links
+                    .map((l, i) => ({ l, i }))
+                    .filter(({ l }) => {
+                      const q = linkFilter.trim().toLowerCase();
+                      if (!q) return true;
+                      return (l.label[editLang] || '').toLowerCase().includes(q) || (l.url || '').toLowerCase().includes(q);
+                    });
+                  const itemsIds = filtered.map(({ i }) => i);
+                  return (
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={({ active, over }) => {
+                        if (!over || active.id === over.id) return;
+                        const oldIndex = active.id;
+                        const newIndex = over.id;
+                        const newItems = arrayMove(cfg.sections.contact.links, oldIndex, newIndex);
+                        cfg.sections.contact.links = newItems;
+                        setConfig(cfg);
+                      }}
+                    >
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {filtered.map(({ l, i }) => (
+                          <LinkRowSortable
+                            key={i}
+                            id={i}
+                            link={l}
+                            i={i}
+                            editLang={editLang}
+                            dir={dir}
+                            updateLinkLabel={updateLinkLabel}
+                            updateLinkUrl={updateLinkUrl}
+                            safeDelete={safeDelete}
+                            removeLink={removeLink}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
               </div>
 
               <div className="panel-header" style={{ marginTop: 24 }}>
@@ -1496,69 +1847,46 @@ export default function Dashboard() {
               </div>
 
               <div className="row-grid" style={{ marginTop: 16 }}>
-                {(cfg.sections.footer?.main?.columns || []).map((col, i) => (
-                  <div key={i} className="panel" style={{ padding: '16px', marginBottom: 0 }}>
-                    <div className="panel-header">
-                      <div className="panel-title">عمود {i + 1}</div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button className="btn btn-outline" onClick={() => moveFooterColumn(i, 'up')}>↑</button>
-                        <button className="btn btn-outline" onClick={() => moveFooterColumn(i, 'down')}>↓</button>
-                        <button
-                          className="btn btn-ghost"
-                          onClick={() => safeDelete(() => removeFooterColumn(i), 'هل أنت متأكد من حذف هذا العمود؟')}
-                        >
-                          حذف
-                        </button>
-                      </div>
-                    </div>
-
-                    <TextInput
-                      label="العنوان"
-                      value={col.title?.[editLang] || ''}
-                      onChange={(v) => updateFooterColumnTitle(i, v)}
-                      dir={dir}
-                      placeholder={editLang === 'ar' ? 'مثال: الشركة' : 'e.g., Company'}
-                      required
-                    />
-
-                    <div className="panel-header" style={{ marginTop: 16 }}>
-                      <div className="panel-title">
-                        روابط <span className="badge">{(col.links || []).length}</span>
-                      </div>
-                      <button className="btn btn-outline" onClick={() => addFooterLink(i)}>إضافة رابط</button>
-                    </div>
-
-                    <div className="row-grid" style={{ marginTop: 12 }}>
-                      {(col.links || []).map((l, j) => (
-                        <div key={j} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
-                          <TextInput
-                            label="الاسم"
-                            value={l.label?.[editLang] || ''}
-                            onChange={(e) => updateFooterLinkLabel(i, j, e.target.value)}
+                {(() => {
+                  const cols = (cfg.sections.footer?.main?.columns || []).map((col, i) => ({ col, i }));
+                  const colIds = cols.map(({ i }) => i);
+                  return (
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={({ active, over }) => {
+                        if (!over || active.id === over.id) return;
+                        const oldIndex = active.id;
+                        const newIndex = over.id;
+                        const arr = cfg.sections.footer?.main?.columns || [];
+                        const newArr = arrayMove(arr, oldIndex, newIndex);
+                        cfg.sections.footer.main.columns = newArr;
+                        setConfig(cfg);
+                      }}
+                    >
+                      <SortableContext items={colIds} strategy={verticalListSortingStrategy}>
+                        {cols.map(({ col, i }) => (
+                          <FooterColumnSortable
+                            key={i}
+                            id={i}
+                            col={col}
+                            i={i}
+                            editLang={editLang}
                             dir={dir}
-                            placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
-                            required
+                            updateFooterColumnTitle={updateFooterColumnTitle}
+                            addFooterLink={addFooterLink}
+                            updateFooterLinkLabel={updateFooterLinkLabel}
+                            updateFooterLinkHref={updateFooterLinkHref}
+                            removeFooterLink={removeFooterLink}
+                            removeFooterColumn={removeFooterColumn}
+                            safeDelete={safeDelete}
+                            setConfig={setConfig}
+                            cfg={cfg}
                           />
-                          <URLInput
-                            label="الرابط"
-                            value={l.href || ''}
-                            onChange={(e) => updateFooterLinkHref(i, j, e.target.value)}
-                            placeholder="# أو https://..."
-                            required
-                          />
-                          <button className="btn btn-outline" onClick={() => moveFooterLink(i, j, 'up')}>↑</button>
-                          <button className="btn btn-outline" onClick={() => moveFooterLink(i, j, 'down')}>↓</button>
-                          <button
-                            className="btn btn-ghost"
-                            onClick={() => safeDelete(() => removeFooterLink(i, j), 'هل أنت متأكد من حذف هذا الرابط؟')}
-                          >
-                            حذف
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  )
+                })()}
               </div>
 
               <div className="panel" style={{ marginTop: 20 }}>
@@ -1573,6 +1901,46 @@ export default function Dashboard() {
                   placeholder={editLang === 'ar' ? 'مثال: جميع الحقوق محفوظة' : 'e.g., All rights reserved'}
                   required
                 />
+              </div>
+            </div>
+          )}
+
+          {/* Layout Panel: reorder sections between Hero and Footer */}
+          {active === 'layout' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">ترتيب الأقسام</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span className="chip">اسحب الأقسام لإعادة ترتيبها</span>
+                </div>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                <DndContext collisionDetection={closestCenter}
+                  onDragEnd={({ active: a, over }) => {
+                    if (!over || a.id === over.id) return
+                    const defaultOrder = ['hero', 'about', 'services', 'contact']
+                    const current = Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length
+                      ? cfg.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
+                      : defaultOrder
+                    const oldIndex = current.indexOf(a.id)
+                    const newIndex = current.indexOf(over.id)
+                    const nextOrder = arrayMove(current, oldIndex, newIndex)
+                    updateConfig('site.sectionsOrder', nextOrder)
+                    refreshPreview()
+                  }}>
+                  <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','about','services','contact']).filter((k) => ['hero','about','services','contact'].includes(k))} strategy={verticalListSortingStrategy}>
+                    {(['hero', 'about', 'services', 'contact']).map((key) => (
+                      <SectionOrderItem
+                        key={key}
+                        id={key}
+                        label={key === 'hero' ? '🖼️ الهيرو' : key === 'about' ? 'ℹ️ من نحن' : key === 'services' ? '🛠️ الخدمات' : '📞 التواصل'}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+                <div className="helper-text" style={{ marginTop: 8 }}>
+                  الفوتر يبقى ثابتًا في الأسفل.
+                </div>
               </div>
             </div>
           )}

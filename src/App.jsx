@@ -59,20 +59,37 @@ function Shell({ children }) {
 function Site() {
   const { config } = useConfig()
   if (!config) return null
+  const defaultOrder = ['hero', 'about', 'services', 'contact']
+  const order = Array.isArray(config.site?.sectionsOrder) && config.site.sectionsOrder.length
+    ? config.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
+    : defaultOrder
+
+  const SectionComp = {
+    hero: Hero,
+    about: About,
+    services: Services,
+    contact: Contact
+  }
+
+  const isEnabled = (key) => {
+    const sec = config.sections?.[key]
+    return sec?.enabled !== false
+  }
+
   return (
     <Shell>
-      <BlocksAt position="beforeHero" />
-      <Hero />
-      <BlocksAt position="afterHero" />
-      <BlocksAt position="beforeAbout" />
-      <About />
-      <BlocksAt position="afterAbout" />
-      <BlocksAt position="beforeServices" />
-      <Services />
-      <BlocksAt position="afterServices" />
-      <BlocksAt position="beforeContact" />
-      <Contact />
-      <BlocksAt position="afterContact" />
+      {order.map((key) => {
+        if (!SectionComp[key] || !isEnabled(key)) return null
+        const Comp = SectionComp[key]
+        const cap = key.charAt(0).toUpperCase() + key.slice(1)
+        return (
+          <React.Fragment key={key}>
+            <BlocksAt position={`before${cap}`} />
+            <Comp />
+            <BlocksAt position={`after${cap}`} />
+          </React.Fragment>
+        )
+      })}
     </Shell>
   )
 }
