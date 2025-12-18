@@ -8,9 +8,62 @@
   "site": {
     "title": { "en": "Acme Corp", "ar": "شركة أكمي" },
     "lang": "en",
+    "menu": [
+      { "label": { "en": "About", "ar": "من نحن" }, "href": "#about" },
+      { "label": { "en": "Services", "ar": "خدماتنا" }, "href": "#services" },
+      { "label": { "en": "Contact", "ar": "تواصل" }, "href": "#contact" }
+    ],
     "footerText": { "en": "Building simple, modern solutions.", "ar": "نقدّم حلولًا بسيطة وعصرية." }
   },
   "sections": {
+    "navbar": {
+      "enabled": true,
+      "colors": { "background": "", "text": "", "border": "", "accent": "" }
+    },
+    "footer": {
+      "enabled": true,
+      "colors": { "background": "", "text": "", "border": "" },
+      "includeContact": true,
+      "main": {
+        "columns": [
+          {
+            "title": { "en": "Company", "ar": "الشركة" },
+            "links": [
+              { "label": { "en": "About", "ar": "من نحن" }, "href": "#about" },
+              { "label": { "en": "Careers", "ar": "وظائف" }, "href": "#" },
+              { "label": { "en": "Press", "ar": "الصحافة" }, "href": "#" }
+            ]
+          },
+          {
+            "title": { "en": "Services", "ar": "الخدمات" },
+            "links": [
+              { "label": { "en": "Consulting", "ar": "استشارات" }, "href": "#services" },
+              { "label": { "en": "Implementation", "ar": "تنفيذ" }, "href": "#services" },
+              { "label": { "en": "Support", "ar": "دعم" }, "href": "#contact" }
+            ]
+          },
+          {
+            "title": { "en": "Resources", "ar": "المصادر" },
+            "links": [
+              { "label": { "en": "Blog", "ar": "المدونة" }, "href": "#" },
+              { "label": { "en": "Docs", "ar": "التوثيق" }, "href": "#" },
+              { "label": { "en": "Community", "ar": "المجتمع" }, "href": "#" }
+            ]
+          },
+          {
+            "title": { "en": "Contact", "ar": "تواصل" },
+            "links": [
+              { "label": { "en": "Email", "ar": "بريد" }, "href": "mailto:info@example.com" },
+              { "label": { "en": "Phone", "ar": "هاتف" }, "href": "tel:+123456789" },
+              { "label": { "en": "Support", "ar": "الدعم" }, "href": "#contact" }
+            ]
+          }
+        ]
+      },
+      "bottom": {
+        "text": { "en": "All rights reserved.", "ar": "جميع الحقوق محفوظة." }
+      }
+    },
     "hero": {
       "enabled": true,
       "heading": { "en": "We build modern solutions.", "ar": "نحن نبني حلولًا عصرية." },
