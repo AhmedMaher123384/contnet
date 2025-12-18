@@ -1,0 +1,61 @@
+{
+  "theme": {
+    "primary": "#0ea5e9",
+    "secondary": "#f97316",
+    "background": "#0b1220",
+    "text": "#e5e7eb"
+  },
+  "site": {
+    "title": { "en": "Acme Corp", "ar": "شركة أكمي" },
+    "lang": "en",
+    "footerText": { "en": "Building simple, modern solutions.", "ar": "نقدّم حلولًا بسيطة وعصرية." }
+  },
+  "sections": {
+    "hero": {
+      "enabled": true,
+      "heading": { "en": "We build modern solutions.", "ar": "نحن نبني حلولًا عصرية." },
+      "subheading": { "en": "Fast, simple, reliable — tailored to your business.", "ar": "سريعة وبسيطة وموثوقة — حسب احتياجك." },
+      "cta": { "text": { "en": "Get Started", "ar": "ابدأ الآن" }, "link": "#contact" },
+      "backgroundImage": "",
+      "colors": { "primary": "#0ea5e9", "secondary": "#f97316", "background": "", "text": "", "ctaBg": "", "ctaText": "" }
+    },
+    "about": {
+      "enabled": true,
+      "heading": { "en": "About Us", "ar": "من نحن" },
+      "paragraphs": [
+        { "en": "Acme Corp crafts fast, minimal, and reliable digital products.", "ar": "شركة أكمي تبني منتجات رقمية سريعة وبسيطة وموثوقة." },
+        { "en": "We focus on clarity and simplicity to deliver real business value.", "ar": "نركّز على البساطة والوضوح لتحقيق قيمة حقيقية." }
+      ],
+      "image": "",
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+    },
+    "services": {
+      "enabled": true,
+      "heading": { "en": "Our Services", "ar": "خدماتنا" },
+      "items": [
+        { "title": { "en": "Design", "ar": "تصميم" }, "description": { "en": "UI/UX design for web and mobile.", "ar": "تصميم واجهات وتجربة مستخدم للويب والموبايل." }, "icon": "💡" },
+        { "title": { "en": "Development", "ar": "تطوير" }, "description": { "en": "Clean, maintainable full‑stack web development.", "ar": "تطوير ويب متكامل نظيف وقابل للصيانة." }, "icon": "⚙️" },
+        { "title": { "en": "Consulting", "ar": "استشارات" }, "description": { "en": "Lean product strategy and technical guidance.", "ar": "استراتيجيات منتجات خفيفة وتوجيه تقني." }, "icon": "🧭" }
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+    },
+    "contact": {
+      "enabled": true,
+      "heading": { "en": "Contact Us", "ar": "تواصل معنا" },
+      "email": "hello@acme.com",
+      "phone": "+1 (555) 123-4567",
+      "address": { "en": "123 Market St, San Francisco, CA", "ar": "١٢٣ شارع ماركت، سان فرانسيسكو" },
+      "links": [
+        { "label": { "en": "Email Us", "ar": "راسلنا" }, "url": "mailto:hello@acme.com" },
+        { "label": { "en": "Call Us", "ar": "اتصل بنا" }, "url": "tel:+15551234567" }
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+    }
+  }
+  ,
+  "customBlocks": [
+    { "enabled": true, "type": "text", "position": "afterHero", "props": { "text": { "en": "Trusted by teams worldwide.", "ar": "موثوق به من فرق حول العالم." }, "align": "center" } },
+    { "enabled": true, "type": "button", "position": "afterAbout", "props": { "text": { "en": "View Portfolio", "ar": "استعرض أعمالنا" }, "link": "#services", "align": "center", "variant": "primary" } },
+    { "enabled": true, "type": "image", "position": "afterServices", "props": { "src": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&auto=format&fit=crop", "alt": { "en": "Team collaboration", "ar": "تعاون الفريق" }, "align": "center", "width": "100%", "height": "auto", "objectFit": "cover", "overlayText": { "en": "Project Spotlight", "ar": "إبراز المشروع" }, "overlayPosition": "bottom-right", "overlayBg": "rgba(0,0,0,0.40)", "overlayColor": "#ffffff", "overlayPadding": 10, "overlayRadius": 8 } }
+  ]
+}
