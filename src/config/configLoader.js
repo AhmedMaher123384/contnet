@@ -13,8 +13,7 @@ export async function loadConfig() {
     try {
       const url = REMOTE_URL + (REMOTE_URL.includes('?') ? '&' : '?') + 'v=' + Date.now()
       const res = await fetch(url, {
-        cache: 'no-cache',
-        headers: REMOTE_TOKEN ? { Authorization: `Bearer ${REMOTE_TOKEN}` } : undefined,
+        cache: 'no-cache'
       })
       if (res.ok) return await res.json()
     } catch {}
