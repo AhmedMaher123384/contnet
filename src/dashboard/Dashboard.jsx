@@ -1137,6 +1137,26 @@ export default function Dashboard() {
     );
   }
 
+  // حمايات افتراضية: تأمين وجود الحقول الأساسية لتفادي تعطل العرض إذا كانت الإعدادات البعيدة ناقصة
+  // ملاحظة: نعدّل النسخة المحلية (clone) فقط لضمان القراءة الآمنة، ويتم الحفظ عند تفاعل المستخدم
+  try {
+    cfg.site = cfg.site || {};
+    cfg.site.title = cfg.site.title || { en: '', ar: '' };
+    cfg.site.footerText = cfg.site.footerText || { en: '', ar: '' };
+    cfg.site.menu = Array.isArray(cfg.site.menu) ? cfg.site.menu : [];
+    cfg.site.logoNavbar = cfg.site.logoNavbar || '';
+    cfg.site.logoFooter = cfg.site.logoFooter || '';
+    cfg.site.favicon = cfg.site.favicon || '';
+    cfg.site.tabTitle = cfg.site.tabTitle || { en: '', ar: '' };
+    cfg.site.sectionsOrder = Array.isArray(cfg.site.sectionsOrder) ? cfg.site.sectionsOrder : [];
+    cfg.sections = cfg.sections || {};
+    cfg.theme = cfg.theme || {};
+    cfg.theme.primary = cfg.theme.primary || '';
+    cfg.theme.secondary = cfg.theme.secondary || '';
+    cfg.theme.background = cfg.theme.background || '';
+    cfg.theme.text = cfg.theme.text || '';
+  } catch {}
+
   const activeLabel = {
     theme: 'الألوان',
     hero: 'الهيرو',
