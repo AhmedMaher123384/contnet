@@ -1664,9 +1664,6 @@ export default function Dashboard() {
           <div className="sidebar-actions">
             <button className="btn btn-primary" onClick={handleSaveAndRefresh}>حفظ</button>
             <button className="btn btn-outline" onClick={() => downloadConfig(config)}>تنزيل JSON</button>
-            <button className="btn btn-ghost" onClick={() => { localStorage.removeItem('siteConfig'); window.location.reload(); }}>
-              إعادة التعيين
-            </button>
           </div>
         </aside>
 
@@ -3116,17 +3113,7 @@ export default function Dashboard() {
                   <button className="btn btn-outline" onClick={handleRemoteSave}>حفظ على السيرفر</button>
                 )}
                 <button className="btn btn-outline" onClick={() => downloadConfig(config)}>تنزيل JSON</button>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    if (confirm('هل أنت متأكد؟ سيتم مسح الإعدادات وتحديث الصفحة.')) {
-                      localStorage.removeItem('siteConfig');
-                      window.location.reload();
-                    }
-                  }}
-                >
-                  إعادة تعيين
-                </button>
+                {/* إزالة زر إعادة التعيين بناءً على طلب المستخدم */}
               </div>
               <div className="panel" style={{ marginTop: 20 }}>
                 <div className="panel-header">

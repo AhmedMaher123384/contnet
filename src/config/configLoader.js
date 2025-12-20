@@ -29,14 +29,8 @@ export async function loadConfig() {
     base = await resBase.json()
   } catch {}
 
-  // أولوية: نسخة المتصفح ← نسخة بعيدة ← الافتراضية
-  try {
-    const overrideStr = localStorage.getItem('siteConfig')
-    if (overrideStr) {
-      const override = JSON.parse(overrideStr)
-      return deepMerge(base, override)
-    }
-  } catch {}
+  // أولوية جديدة: نسخة بعيدة ← الافتراضية ← (نسخة المتصفح فقط داخل لوحة الإدارة)
+  let merged = base
 
   if (hasRemote) {
     try {
@@ -44,12 +38,25 @@ export async function loadConfig() {
       const res = await fetch(url, { cache: 'no-cache' })
       if (res.ok) {
         const remoteCfg = await res.json()
-        return deepMerge(base, remoteCfg)
+        // استخدم الإعدادات البعيدة كمصدر وحيد لمنع تضمين حقول قديمة من الافتراضي
+        merged = remoteCfg
       }
     } catch {}
   }
 
-  return base
+  // لا تُطبّق نسخة المتصفح إلا في وضع الإدارة (#admin)
+  try {
+    const isAdmin = typeof window !== 'undefined' && window.location && window.location.hash === '#admin'
+    if (isAdmin) {
+      const overrideStr = localStorage.getItem('siteConfig')
+      if (overrideStr) {
+        const override = JSON.parse(overrideStr)
+        merged = deepMerge(merged, override)
+      }
+    }
+  } catch {}
+
+  return merged
 }
 
 export function saveConfig(cfg) {
