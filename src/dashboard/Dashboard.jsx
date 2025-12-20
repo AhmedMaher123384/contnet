@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { useConfig } from '../config/ConfigContext.jsx';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, useSensor, useSensors, MouseSensor, TouchSensor, KeyboardSensor } from '@dnd-kit/core';
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { downloadConfig, saveConfigRemote, hasRemote } from '../config/configLoader.js';
 
@@ -300,9 +300,9 @@ const SectionOrderItem = ({ id, label }) => {
     background: 'color-mix(in srgb, var(--color-text) 3%, transparent)'
   }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span aria-hidden="true">↕️</span>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         {label}
       </span>
       <span className="badge">سحب لإعادة الترتيب</span>
@@ -318,7 +318,7 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateSe
     transition
   }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
         <input
           type="text"
@@ -343,7 +343,7 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateSe
           placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
           rows={3}
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button
           className="btn btn-ghost"
           onClick={() => safeDelete(() => removeService(i), 'هل أنت متأكد من حذف هذه الخدمة؟')}
@@ -363,7 +363,7 @@ const LinkRowSortable = ({ id, link, i, editLang, dir, updateLinkLabel, updateLi
     transition
   }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="الاسم"
@@ -380,7 +380,7 @@ const LinkRowSortable = ({ id, link, i, editLang, dir, updateLinkLabel, updateLi
           placeholder="https://..."
           required
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeLink(i), 'هل أنت متأكد من حذف هذا الرابط؟')}>حذف</button>
       </div>
     </div>
@@ -392,7 +392,7 @@ const MetricRowSortable = ({ id, m, i, editLang, dir, updateMetricLabel, updateM
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="العنوان"
@@ -410,7 +410,7 @@ const MetricRowSortable = ({ id, m, i, editLang, dir, updateMetricLabel, updateM
           placeholder="720+"
           required
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeMetric(i), 'حذف هذا المؤشر؟')}>حذف</button>
       </div>
     </div>
@@ -422,7 +422,7 @@ const IndustryRowSortable = ({ id, item, i, editLang, dir, updateIndustry, safeD
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="العنوان"
@@ -439,7 +439,7 @@ const IndustryRowSortable = ({ id, item, i, editLang, dir, updateIndustry, safeD
           dir={dir}
           placeholder={editLang === 'ar' ? 'مثال: تجارة' : 'e.g., Trading'}
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeIndustry(i), 'حذف هذا المجال؟')}>حذف</button>
       </div>
     </div>
@@ -451,7 +451,7 @@ const HighlightRowSortable = ({ id, item, i, editLang, dir, updateHighlight, saf
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="العنوان"
@@ -469,7 +469,7 @@ const HighlightRowSortable = ({ id, item, i, editLang, dir, updateHighlight, saf
           placeholder={editLang === 'ar' ? 'وصف موجز' : 'Brief description'}
           rows={3}
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeHighlight(i), 'حذف هذه الميزة؟')}>حذف</button>
       </div>
     </div>
@@ -481,7 +481,7 @@ const PortfolioFilterRowSortable = ({ id, f, i, editLang, dir, updateFilterLabel
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="الاسم"
@@ -499,7 +499,7 @@ const PortfolioFilterRowSortable = ({ id, f, i, editLang, dir, updateFilterLabel
           placeholder="all"
           required
         />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFilter(i), 'حذف هذا الفلتر؟')}>حذف</button>
       </div>
     </div>
@@ -511,7 +511,7 @@ const PortfolioItemRowSortable = ({ id, item, i, editLang, dir, updateItemText, 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 140px auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="العنوان"
@@ -538,7 +538,7 @@ const PortfolioItemRowSortable = ({ id, item, i, editLang, dir, updateItemText, 
             <option value="cosmetics">{editLang === 'ar' ? 'مستحضرات التجميل' : 'Cosmetics'}</option>
           </select>
         </div>
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeItem(i), 'حذف هذا المشروع؟')}>حذف</button>
       </div>
       <div className="row-grid" style={{ marginTop: 10 }}>
@@ -556,11 +556,11 @@ const TestimonialRowSortable = ({ id, tItem, i, editLang, dir, updateTestimonial
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px auto auto', gap: 10, alignItems: 'center' }}>
         <TextArea label="الاقتباس" value={tItem.quote?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'quote', v)} dir={dir} placeholder={editLang === 'ar' ? 'نص الرأي' : 'Quote'} required rows={3} />
         <TextInput label="الاسم" value={tItem.name || ''} onChange={(v) => updateTestimonialName(i, v)} dir={dir} placeholder={editLang === 'ar' ? 'الاسم' : 'Name'} required />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeTestimonial(i), 'حذف هذا الرأي؟')}>حذف</button>
       </div>
       <div className="row-grid" style={{ marginTop: 10 }}>
@@ -578,11 +578,11 @@ const SummaryRowSortable = ({ id, s, i, editLang, dir, updateSummaryLabel, updat
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput label={editLang === 'ar' ? 'العنوان' : 'Label'} value={s.label?.[editLang] || ''} onChange={(v) => updateSummaryLabel(i, v)} dir={dir} placeholder={editLang === 'ar' ? 'مثال: رضا العملاء' : 'e.g., Satisfaction'} required />
         <TextInput label={editLang === 'ar' ? 'القيمة' : 'Value'} value={s.value || ''} onChange={(v) => updateSummaryValue(i, v)} dir={dir} placeholder="98%" required />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeSummary(i), 'حذف هذا السطر؟')}>حذف</button>
       </div>
     </div>
@@ -594,11 +594,11 @@ const TeamMemberRowSortable = ({ id, m, i, editLang, dir, updateMemberText, safe
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = { transform: CSS.Transform.toString(transform), transition }
   return (
-    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="row-cta">
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <TextInput label="الاسم" value={m.name?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'name', v)} dir={dir} placeholder={editLang === 'ar' ? 'الاسم' : 'Name'} required />
         <TextInput label="الدور" value={m.role?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'role', v)} dir={dir} placeholder={editLang === 'ar' ? 'الدور' : 'Role'} />
-        <button className="btn btn-outline">↕️</button>
+        <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeMember(i), 'حذف هذا العضو؟')}>حذف</button>
       </div>
       <div className="row-grid" style={{ marginTop: 10 }}>
@@ -609,18 +609,18 @@ const TeamMemberRowSortable = ({ id, m, i, editLang, dir, updateMemberText, safe
 }
 
 // عنصر عمود فوتر قابل للسحب لإعادة الترتيب
-const FooterColumnSortable = ({ id, col, i, editLang, dir, updateFooterColumnTitle, addFooterLink, updateFooterLinkLabel, updateFooterLinkHref, removeFooterLink, removeFooterColumn, setConfig, cfg, safeDelete }) => {
+const FooterColumnSortable = ({ id, col, i, editLang, dir, updateFooterColumnTitle, addFooterLink, updateFooterLinkLabel, updateFooterLinkHref, removeFooterLink, removeFooterColumn, setConfig, cfg, safeDelete, sensors }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = {
     transform: CSS.Transform.toString(transform),
     transition
   }
   return (
-    <div ref={setNodeRef} style={style} className="panel" {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} className="panel">
       <div className="panel-header">
         <div className="panel-title">عمود {i + 1}</div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button className="btn btn-outline" aria-label="اسحب لإعادة الترتيب">↕️</button>
+          <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
           <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFooterColumn(i), 'هل أنت متأكد من حذف هذا العمود؟')}>حذف</button>
         </div>
       </div>
@@ -648,6 +648,7 @@ const FooterColumnSortable = ({ id, col, i, editLang, dir, updateFooterColumnTit
           return (
             <DndContext
               collisionDetection={closestCenter}
+              sensors={sensors}
               onDragEnd={({ active, over }) => {
                 if (!over || active.id === over.id) return;
                 const oldIndex = Number(String(active.id).split('-')[1]);
@@ -691,7 +692,7 @@ const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLab
     transition
   }
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: 10, alignItems: 'center' }}>
         <TextInput
           label="الاسم"
@@ -709,7 +710,7 @@ const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLab
           required
         />
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-          <button className="btn btn-outline" aria-label="اسحب لإعادة الترتيب">↕️</button>
+          <button type="button" className="btn btn-outline" aria-label="اسحب لإعادة الترتيب" {...attributes} {...listeners}>↕️</button>
           <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFooterLink(i, j), 'هل أنت متأكد من حذف هذا الرابط؟')}>حذف</button>
         </div>
       </div>
@@ -734,6 +735,12 @@ export default function Dashboard() {
   const previewRef = useRef(null);
 
   const cfg = useMemo(() => (config ? JSON.parse(JSON.stringify(config)) : null), [config]);
+  // حساسات السحب لتجنّب بدء السحب من حقول الإدخال
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 180, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   const refreshPreview = useCallback(() => {
     if (!showPreview || !previewRef.current) return;
@@ -1158,6 +1165,9 @@ export default function Dashboard() {
   } catch {}
 
   const activeLabel = {
+    general: 'الإعدادات العامة',
+    branding: 'العلامة التجارية',
+    navbar: 'روابط النافبار',
     theme: 'الألوان',
     hero: 'الهيرو',
     about: 'من نحن',
@@ -1720,6 +1730,25 @@ export default function Dashboard() {
             <div className="dashboard-logo">لوحة التحكم</div>
           </div>
           <nav className="dashboard-nav">
+            <div className="nav-section">الإعدادات</div>
+            <button
+              className={`nav-item ${active === 'general' ? 'active' : ''}`}
+              onClick={() => { setActive('general'); setMobileMenuOpen(false); }}
+            >
+              ⚙️ الإعدادات العامة
+            </button>
+            <button
+              className={`nav-item ${active === 'branding' ? 'active' : ''}`}
+              onClick={() => { setActive('branding'); setMobileMenuOpen(false); }}
+            >
+              🏷️ العلامة التجارية
+            </button>
+            <button
+              className={`nav-item ${active === 'navbar' ? 'active' : ''}`}
+              onClick={() => { setActive('navbar'); setMobileMenuOpen(false); }}
+            >
+              🔗 روابط النافبار
+            </button>
             <div className="nav-section">المظهر</div>
             <button
               className={`nav-item ${active === 'theme' ? 'active' : ''}`}
@@ -1807,97 +1836,107 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* General Settings */}
-          <div className="panel">
-            <div className="panel-header">
-              <div className="panel-title">الإعدادات العامة</div>
-      
+          {/* General Settings Tab */}
+          {active === 'general' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">الإعدادات العامة</div>
+              </div>
+              <div className="form-grid">
+                <TextInput
+                  label="عنوان الموقع"
+                  value={cfg.site.title[editLang]}
+                  onChange={(v) => setSiteText('title', v)}
+                  dir={dir}
+                  placeholder={editLang === 'ar' ? 'مثال: شركة السمارت' : 'e.g., SmartCo'}
+                  required
+                />
+                <TextArea
+                  label="نص الفوتر"
+                  value={cfg.site.footerText[editLang]}
+                  onChange={(v) => setSiteText('footerText', v)}
+                  dir={dir}
+                  placeholder={editLang === 'ar' ? '© جميع الحقوق محفوظة' : '© All rights reserved'}
+                  rows={2}
+                />
+              </div>
             </div>
+          )}
 
-            <div className="form-grid">
-              <TextInput
-                label="عنوان الموقع"
-                value={cfg.site.title[editLang]}
-                onChange={(v) => setSiteText('title', v)}
-                dir={dir}
-                placeholder={editLang === 'ar' ? 'مثال: شركة السمارت' : 'e.g., SmartCo'}
-                required
-              />
-              <TextArea
-                label="نص الفوتر"
-                value={cfg.site.footerText[editLang]}
-                onChange={(v) => setSiteText('footerText', v)}
-                dir={dir}
-                placeholder={editLang === 'ar' ? '© جميع الحقوق محفوظة' : '© All rights reserved'}
-                rows={2}
-              />
+          {/* Branding Tab */}
+          {active === 'branding' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">العلامة التجارية</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <URLInput
+                  label="شعار النافبار"
+                  value={cfg.site.logoNavbar || ''}
+                  onChange={(v) => { cfg.site.logoNavbar = v; setConfig(cfg); }}
+                  placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الهيدر' : 'Navbar logo image URL'}
+                />
+                <URLInput
+                  label="شعار الفوتر"
+                  value={cfg.site.logoFooter || ''}
+                  onChange={(v) => { cfg.site.logoFooter = v; setConfig(cfg); }}
+                  placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الفوتر' : 'Footer logo image URL'}
+                />
+                <URLInput
+                  label="الصورة (فافيكون)"
+                  value={cfg.site.favicon || ''}
+                  onChange={(v) => { cfg.site.favicon = v; setConfig(cfg); }}
+                  placeholder={editLang === 'ar' ? '/favicon.png أو رابط مباشر' : '/favicon.png or full URL'}
+                />
+                <TextInput
+                  label="عنوان التاب"
+                  value={(cfg.site.tabTitle?.[editLang] || '')}
+                  onChange={(v) => setSiteText('tabTitle', v)}
+                  dir={dir}
+                  placeholder={editLang === 'ar' ? 'نص يظهر بجوار الفافيكون' : 'Text shown beside favicon'}
+                  required
+                />
+              </div>
             </div>
+          )}
 
-            <div className="panel-header" style={{ marginTop: 24 }}>
-              <div className="panel-title">العلامة التجارية</div>
+          {/* Navbar Links Tab */}
+          {active === 'navbar' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">روابط النافبار <span className="badge">{(cfg.site.menu || []).length}</span></div>
+                <button className="btn btn-outline" onClick={addNavLink}>إضافة رابط</button>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(cfg.site.menu || []).map((l, i) => (
+                  <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
+                    <TextInput
+                      label="الاسم"
+                      value={l.label?.[editLang] || ''}
+                      onChange={(v) => updateNavLabel(i, v)}
+                      dir={dir}
+                      placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
+                    />
+                    <URLInput
+                      label="الرابط"
+                      value={l.href || ''}
+                      onChange={(v) => updateNavHref(i, v)}
+                      placeholder="#about أو https://..."
+                      required
+                    />
+                    <button className="btn btn-outline" onClick={() => moveNav(i, 'up')}>↑</button>
+                    <button className="btn btn-outline" onClick={() => moveNav(i, 'down')}>↓</button>
+                    <button
+                      className="btn btn-ghost"
+                      onClick={() => safeDelete(() => removeNav(i), 'هل أنت متأكد من حذف هذا الرابط؟')}
+                    >
+                      حذف
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="row-grid row-2" style={{ marginTop: 12 }}>
-              <URLInput
-                label="شعار النافبار"
-                value={cfg.site.logoNavbar || ''}
-                onChange={(v) => { cfg.site.logoNavbar = v; setConfig(cfg); }}
-                placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الهيدر' : 'Navbar logo image URL'}
-              />
-              <URLInput
-                label="شعار الفوتر"
-                value={cfg.site.logoFooter || ''}
-                onChange={(v) => { cfg.site.logoFooter = v; setConfig(cfg); }}
-                placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الفوتر' : 'Footer logo image URL'}
-              />
-              <URLInput
-                label="الصورة (فافيكون)"
-                value={cfg.site.favicon || ''}
-                onChange={(v) => { cfg.site.favicon = v; setConfig(cfg); }}
-                placeholder={editLang === 'ar' ? '/favicon.png أو رابط مباشر' : '/favicon.png or full URL'}
-              />
-              <TextInput
-                label="عنوان التاب"
-                value={(cfg.site.tabTitle?.[editLang] || '')}
-                onChange={(v) => setSiteText('tabTitle', v)}
-                dir={dir}
-                placeholder={editLang === 'ar' ? 'نص يظهر بجوار الفافيكون' : 'Text shown beside favicon'}
-                required
-              />
-            </div>
-
-            <div className="panel-header" style={{ marginTop: 24 }}>
-              <div className="panel-title">روابط النافبار <span className="badge">{(cfg.site.menu || []).length}</span></div>
-              <button className="btn btn-outline" onClick={addNavLink}>إضافة رابط</button>
-            </div>
-            <div className="row-grid" style={{ marginTop: 12 }}>
-              {(cfg.site.menu || []).map((l, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
-                  <TextInput
-                    label="الاسم"
-                    value={l.label?.[editLang] || ''}
-                    onChange={(v) => updateNavLabel(i, v)}
-                    dir={dir}
-                    placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
-                  />
-                  <URLInput
-                    label="الرابط"
-                    value={l.href || ''}
-                    onChange={(v) => updateNavHref(i, v)}
-                    placeholder="#about أو https://..."
-                    required
-                  />
-                  <button className="btn btn-outline" onClick={() => moveNav(i, 'up')}>↑</button>
-                  <button className="btn btn-outline" onClick={() => moveNav(i, 'down')}>↓</button>
-                  <button
-                    className="btn btn-ghost"
-                    onClick={() => safeDelete(() => removeNav(i), 'هل أنت متأكد من حذف هذا الرابط؟')}
-                  >
-                    حذف
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          )}
 
           {/* Theme Panel */}
           {active === 'theme' && (
@@ -2321,6 +2360,7 @@ export default function Dashboard() {
                   return (
                     <DndContext
                       collisionDetection={closestCenter}
+                      sensors={sensors}
                       onDragEnd={({ active, over }) => {
                         if (!over || active.id === over.id) return;
                         const oldIndex = active.id;
@@ -2385,7 +2425,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.metrics.items || []).map((m, i) => ({ m, i }));
                   const itemsIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.metrics.items, oldIndex, newIndex);
@@ -2446,6 +2486,7 @@ export default function Dashboard() {
                   return (
                     <DndContext
                       collisionDetection={closestCenter}
+                      sensors={sensors}
                       onDragEnd={({ active, over }) => {
                         if (!over || active.id === over.id) return;
                         const oldIndex = active.id;
@@ -2513,7 +2554,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.industries.items || []).map((item, i) => ({ item, i }));
                   const itemsIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.industries.items, oldIndex, newIndex);
@@ -2556,7 +2597,7 @@ export default function Dashboard() {
                   const filters = (cfg.sections.portfolio.filters || []).map((f, i) => ({ f, i }));
                   const filterIds = filters.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.portfolio.filters, oldIndex, newIndex);
@@ -2581,7 +2622,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.portfolio.items || []).map((item, i) => ({ item, i }));
                   const itemIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.portfolio.items, oldIndex, newIndex);
@@ -2627,7 +2668,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.testimonials.summary || []).map((s, i) => ({ s, i }));
                   const itemsIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.testimonials.summary, oldIndex, newIndex);
@@ -2651,7 +2692,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.testimonials.items || []).map((tItem, i) => ({ tItem, i }));
                   const itemsIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.testimonials.items, oldIndex, newIndex);
@@ -2693,7 +2734,7 @@ export default function Dashboard() {
                   const items = (cfg.sections.team.members || []).map((m, i) => ({ m, i }));
                   const itemsIds = items.map(({ i }) => i);
                   return (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                    <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={({ active, over }) => {
                       if (!over || active.id === over.id) return;
                       const oldIndex = active.id; const newIndex = over.id;
                       const newItems = arrayMove(cfg.sections.team.members, oldIndex, newIndex);
@@ -2810,6 +2851,7 @@ export default function Dashboard() {
                   return (
                     <DndContext
                       collisionDetection={closestCenter}
+                      sensors={sensors}
                       onDragEnd={({ active, over }) => {
                         if (!over || active.id === over.id) return;
                         const oldIndex = active.id;
@@ -2887,6 +2929,7 @@ export default function Dashboard() {
                   return (
                     <DndContext
                       collisionDetection={closestCenter}
+                      sensors={sensors}
                       onDragEnd={({ active, over }) => {
                         if (!over || active.id === over.id) return;
                         const oldIndex = active.id;
@@ -2915,6 +2958,7 @@ export default function Dashboard() {
                             safeDelete={safeDelete}
                             setConfig={setConfig}
                             cfg={cfg}
+                            sensors={sensors}
                           />
                         ))}
                       </SortableContext>
@@ -2950,7 +2994,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className="row-grid" style={{ marginTop: 12 }}>
-                <DndContext collisionDetection={closestCenter}
+                <DndContext collisionDetection={closestCenter} sensors={sensors}
                   onDragEnd={({ active: a, over }) => {
                     if (!over || a.id === over.id) return
           const defaultOrder = ['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
