@@ -36,6 +36,25 @@
     }
   },
   "sections": {
+    "highlights": {
+      "enabled": true,
+      "heading": { "en": "Highlights", "ar": "أبرز النقاط" },
+      "items": [
+        {
+          "title": { "en": "Quality Assurance", "ar": "ضمان الجودة" },
+          "description": { "en": "We verify suppliers, documents, and compliance.", "ar": "نقوم بالتحقق من الموردين والمستندات والامتثال." }
+        },
+        {
+          "title": { "en": "Global Network", "ar": "شبكة عالمية" },
+          "description": { "en": "Direct access to manufacturers across China.", "ar": "وصول مباشر إلى المصنعين عبر الصين." }
+        },
+        {
+          "title": { "en": "Customer Support", "ar": "دعم العملاء" },
+          "description": { "en": "End‑to‑end assistance before and after sales.", "ar": "مساندة شاملة قبل وبعد البيع." }
+        }
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+    },
     "navbar": {
       "enabled": true,
       "colors": { "background": "", "text": "", "border": "", "accent": "" }

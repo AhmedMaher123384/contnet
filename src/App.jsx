@@ -2,6 +2,7 @@ import React from 'react'
 import { ConfigProvider, useConfig } from './config/ConfigContext.jsx'
 import Hero from './components/Hero.jsx'
 import About from './components/About.jsx'
+import Highlights from './components/Highlights.jsx'
 import Services from './components/Services.jsx'
 import Contact from './components/Contact.jsx'
 import Metrics from './components/Metrics.jsx'
@@ -46,7 +47,7 @@ function Shell({ children }) {
 function Site() {
   const { config } = useConfig()
   if (!config) return null
-  const defaultOrder = ['hero', 'metrics', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
+  const defaultOrder = ['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
   const order = Array.isArray(config.site?.sectionsOrder) && config.site.sectionsOrder.length
     ? config.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
     : defaultOrder
@@ -54,6 +55,7 @@ function Site() {
   const SectionComp = {
     hero: Hero,
     metrics: Metrics,
+    highlights: Highlights,
     about: About,
     industries: Industries,
     services: Services,

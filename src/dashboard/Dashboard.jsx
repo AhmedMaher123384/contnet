@@ -259,6 +259,32 @@ const TextInput = ({ label, value, onChange, dir, placeholder, required = false 
   );
 };
 
+const TextArea = ({ label, value, onChange, dir, placeholder, required = false, rows = 3 }) => {
+  const [error, setError] = useState(false);
+
+  const handleChange = (v) => {
+    const valid = !required || v.trim() !== '';
+    setError(!valid);
+    onChange(v);
+  };
+
+  return (
+    <div className="form-group">
+      <label>{label}</label>
+      <textarea
+        value={value || ''}
+        onChange={(e) => handleChange(e.target.value)}
+        dir={dir}
+        placeholder={placeholder}
+        rows={rows}
+        className={error ? 'input-error' : ''}
+        style={{ resize: 'vertical', whiteSpace: 'pre-wrap' }}
+      />
+      {error && <span className="error-hint">هذا الحقل مطلوب</span>}
+    </div>
+  );
+};
+
 // عنصر قابل للسحب لترتيب الأقسام
 const SectionOrderItem = ({ id, label }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -309,12 +335,13 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateSe
           placeholder={editLang === 'ar' ? 'عنوان الخدمة' : 'Service title'}
           required
         />
-        <TextInput
+        <TextArea
           label="الوصف"
           value={svc.description[editLang] || ''}
           onChange={(v) => updateService(i, 'description', v)}
           dir={dir}
           placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
+          rows={3}
         />
         <button className="btn btn-outline">↕️</button>
         <button
@@ -419,6 +446,36 @@ const IndustryRowSortable = ({ id, item, i, editLang, dir, updateIndustry, safeD
   )
 }
 
+// عنصر ميزة (Highlight) قابل للسحب
+const HighlightRowSortable = ({ id, item, i, editLang, dir, updateHighlight, safeDelete, removeHighlight }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="العنوان"
+          value={item.title?.[editLang] || ''}
+          onChange={(v) => updateHighlight(i, 'title', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'عنوان قصير' : 'Short title'}
+          required
+        />
+        <TextArea
+          label="الوصف"
+          value={item.description?.[editLang] || ''}
+          onChange={(v) => updateHighlight(i, 'description', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'وصف موجز' : 'Brief description'}
+          rows={3}
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeHighlight(i), 'حذف هذه الميزة؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
 // عنصر فلتر بورتفوليو قابل للسحب
 const PortfolioFilterRowSortable = ({ id, f, i, editLang, dir, updateFilterLabel, updateFilterValue, safeDelete, removeFilter }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -464,12 +521,13 @@ const PortfolioItemRowSortable = ({ id, item, i, editLang, dir, updateItemText, 
           placeholder={editLang === 'ar' ? 'عنوان المشروع' : 'Project title'}
           required
         />
-        <TextInput
+        <TextArea
           label="الوصف"
           value={item.description?.[editLang] || ''}
           onChange={(v) => updateItemText(i, 'description', v)}
           dir={dir}
           placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
+          rows={3}
         />
         <div className="form-group">
           <label>{editLang === 'ar' ? 'الفئة' : 'Category'}</label>
@@ -500,7 +558,7 @@ const TestimonialRowSortable = ({ id, tItem, i, editLang, dir, updateTestimonial
   return (
     <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px auto auto', gap: 10, alignItems: 'center' }}>
-        <TextInput label="الاقتباس" value={tItem.quote?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'quote', v)} dir={dir} placeholder={editLang === 'ar' ? 'نص الرأي' : 'Quote'} required />
+        <TextArea label="الاقتباس" value={tItem.quote?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'quote', v)} dir={dir} placeholder={editLang === 'ar' ? 'نص الرأي' : 'Quote'} required rows={3} />
         <TextInput label="الاسم" value={tItem.name || ''} onChange={(v) => updateTestimonialName(i, v)} dir={dir} placeholder={editLang === 'ar' ? 'الاسم' : 'Name'} required />
         <button className="btn btn-outline">↕️</button>
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeTestimonial(i), 'حذف هذا الرأي؟')}>حذف</button>
@@ -544,7 +602,7 @@ const TeamMemberRowSortable = ({ id, m, i, editLang, dir, updateMemberText, safe
         <button className="btn btn-ghost" onClick={() => safeDelete(() => removeMember(i), 'حذف هذا العضو؟')}>حذف</button>
       </div>
       <div className="row-grid" style={{ marginTop: 10 }}>
-        <TextInput label="نبذة" value={m.bio?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'bio', v)} dir={dir} placeholder={editLang === 'ar' ? 'مختصر السيرة' : 'Short bio'} />
+        <TextArea label="نبذة" value={m.bio?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'bio', v)} dir={dir} placeholder={editLang === 'ar' ? 'مختصر السيرة' : 'Short bio'} rows={4} />
       </div>
     </div>
   )
@@ -869,6 +927,15 @@ export default function Dashboard() {
   const updateMetricLabel = (i, v) => { cfg.sections.metrics.items[i].label[editLang] = v; setConfig(cfg); };
   const updateMetricValue = (i, v) => { cfg.sections.metrics.items[i].value = v; setConfig(cfg); };
   const removeMetric = (i) => { cfg.sections.metrics.items.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة المميزات (Highlights) ========
+  const addHighlight = () => {
+    cfg.sections.highlights.items = cfg.sections.highlights.items || []
+    cfg.sections.highlights.items.push({ title: { en: '', ar: '' }, description: { en: '', ar: '' } })
+    setConfig(cfg)
+  }
+  const updateHighlight = (i, field, v) => { cfg.sections.highlights.items[i][field][editLang] = v; setConfig(cfg); };
+  const removeHighlight = (i) => { cfg.sections.highlights.items.splice(i, 1); setConfig(cfg); };
 
   // ======== إدارة مجالات العمل (Industries) ========
   const addIndustry = () => { (cfg.sections.industries.items = cfg.sections.industries.items || []).push({ title: { en: '', ar: '' }, tagline: { en: '', ar: '' } }); setConfig(cfg); };
@@ -1631,7 +1698,7 @@ export default function Dashboard() {
             >
               📐 ترتيب الأقسام
             </button>
-            {['hero', 'metrics', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact', 'footer', 'custom'].map((key) => (
+{['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact', 'footer', 'custom'].map((key) => (
               <button
                 key={key}
                 className={`nav-item ${active === key ? 'active' : ''}`}
@@ -1639,6 +1706,7 @@ export default function Dashboard() {
               >
                 {key === 'hero' && '🖼️ الهيرو'}
                 {key === 'metrics' && '📊 المؤشرات'}
+                {key === 'highlights' && '✨ أبرز النقاط'}
                 {key === 'about' && 'ℹ️ من نحن'}
                 {key === 'industries' && '🏭 مجالات العمل'}
                 {key === 'services' && '🛠️ الخدمات'}
@@ -1718,12 +1786,13 @@ export default function Dashboard() {
                 placeholder={editLang === 'ar' ? 'مثال: شركة السمارت' : 'e.g., SmartCo'}
                 required
               />
-              <TextInput
+              <TextArea
                 label="نص الفوتر"
                 value={cfg.site.footerText[editLang]}
                 onChange={(v) => setSiteText('footerText', v)}
                 dir={dir}
                 placeholder={editLang === 'ar' ? '© جميع الحقوق محفوظة' : '© All rights reserved'}
+                rows={2}
               />
             </div>
 
@@ -1917,12 +1986,13 @@ export default function Dashboard() {
                   placeholder={editLang === 'ar' ? 'مثال: نَبني حلول رقمية' : 'e.g., We build digital solutions'}
                   required
                 />
-                <TextInput
+                <TextArea
                   label="العنوان الفرعي"
                   value={cfg.sections.hero.subheading[editLang]}
                   onChange={(v) => setSectionText('hero', 'subheading', v)}
                   dir={dir}
                   placeholder={editLang === 'ar' ? 'وصف مختصر جذاب' : 'Short catchy subheading'}
+                  rows={2}
                 />
                 <TextInput
                   label="نص الزر"
@@ -2122,7 +2192,7 @@ export default function Dashboard() {
               </div>
               <div className="row-grid" style={{ marginTop: 12 }}>
                 {(cfg.sections.about.paragraphs || []).map((p, i) => (
-                  <TextInput
+                  <TextArea
                     key={i}
                     label={`فقرة ${i + 1}`}
                     value={p[editLang] || ''}
@@ -2130,6 +2200,7 @@ export default function Dashboard() {
                     dir={dir}
                     placeholder={editLang === 'ar' ? 'نص الفقرة...' : 'Paragraph text...'}
                     required
+                    rows={3}
                   />
                 ))}
               </div>
@@ -2301,6 +2372,79 @@ export default function Dashboard() {
                 <ColorInput label="الثانوي" value={cfg.sections.metrics.colors.secondary || ''} onChange={(v) => setSectionColor('metrics', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.metrics.colors.background || ''} onChange={(v) => setSectionColor('metrics', 'background', v)} />
                 <ColorInput label="النص" value={cfg.sections.metrics.colors.text || ''} onChange={(v) => setSectionColor('metrics', 'text', v)} required />
+              </div>
+            </div>
+          )}
+
+          {/* Highlights Panel */}
+          {active === 'highlights' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  أبرز النقاط <span className="badge">{(cfg.sections.highlights.items || []).length}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button className="btn btn-outline" onClick={addHighlight}>إضافة ميزة</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.highlights.enabled} onChange={(e) => setSectionEnabled('highlights', e.target.checked)} id="highlights-enabled" />
+                <label htmlFor="highlights-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <TextInput
+                label="العنوان"
+                value={cfg.sections.highlights.heading[editLang]}
+                onChange={(v) => setSectionText('highlights', 'heading', v)}
+                dir={dir}
+                placeholder={editLang === 'ar' ? 'أبرز النقاط' : 'Highlights'}
+                required
+              />
+
+              <div className="row-grid" style={{ marginTop: 20 }}>
+                {(() => {
+                  const itemsIds = (cfg.sections.highlights.items || []).map((_, i) => i)
+                  return (
+                    <DndContext
+                      collisionDetection={closestCenter}
+                      onDragEnd={({ active, over }) => {
+                        if (!over || active.id === over.id) return;
+                        const oldIndex = active.id;
+                        const newIndex = over.id;
+                        const newItems = arrayMove(cfg.sections.highlights.items || [], oldIndex, newIndex);
+                        cfg.sections.highlights.items = newItems;
+                        setConfig(cfg);
+                      }}
+                    >
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {(cfg.sections.highlights.items || []).map((item, i) => (
+                          <HighlightRowSortable
+                            key={i}
+                            id={i}
+                            item={item}
+                            i={i}
+                            editLang={editLang}
+                            dir={dir}
+                            updateHighlight={updateHighlight}
+                            safeDelete={safeDelete}
+                            removeHighlight={removeHighlight}
+                          />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  )
+                })()}
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 24 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={cfg.sections.highlights.colors.primary || ''} onChange={(v) => setSectionColor('highlights', 'primary', v)} />
+                <ColorInput label="الثانوي" value={cfg.sections.highlights.colors.secondary || ''} onChange={(v) => setSectionColor('highlights', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={cfg.sections.highlights.colors.background || ''} onChange={(v) => setSectionColor('highlights', 'background', v)} />
+                <ColorInput label="النص" value={cfg.sections.highlights.colors.text || ''} onChange={(v) => setSectionColor('highlights', 'text', v)} required />
               </div>
             </div>
           )}
@@ -2539,7 +2683,7 @@ export default function Dashboard() {
               </div>
               <div className="form-grid">
                 <TextInput label="العنوان" value={cfg.sections.cta.heading[editLang]} onChange={(v) => setSectionText('cta', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'جاهز للبدء؟' : 'Ready to start?'} required />
-                <TextInput label="وصف موجز" value={cfg.sections.cta.subheading[editLang]} onChange={(v) => setSectionText('cta', 'subheading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سطر تمهيدي' : 'Lead-in text'} />
+                <TextArea label="وصف موجز" value={cfg.sections.cta.subheading[editLang]} onChange={(v) => setSectionText('cta', 'subheading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سطر تمهيدي' : 'Lead-in text'} rows={2} />
                 <TextInput label="نص الزر" value={cfg.sections.cta.cta.text[editLang]} onChange={(v) => setCTAButtonText(v)} dir={dir} placeholder={editLang === 'ar' ? 'ابدأ اليوم' : 'Start Today'} required />
                 <URLInput label="رابط الزر" value={cfg.sections.cta.cta.link || ''} onChange={(v) => setCTAButtonLink(v)} placeholder="#contact أو https://..." required />
               </div>
@@ -2743,13 +2887,14 @@ export default function Dashboard() {
                 <div className="panel-header">
                   <div className="panel-title">الشريط السفلي</div>
                 </div>
-                <TextInput
+                <TextArea
                   label="النص"
                   value={(cfg.sections.footer?.bottom?.text?.[editLang] || '')}
                   onChange={(v) => updateFooterBottomText(v)}
                   dir={dir}
                   placeholder={editLang === 'ar' ? 'مثال: جميع الحقوق محفوظة' : 'e.g., All rights reserved'}
                   required
+                  rows={2}
                 />
               </div>
             </div>
@@ -2768,7 +2913,7 @@ export default function Dashboard() {
                 <DndContext collisionDetection={closestCenter}
                   onDragEnd={({ active: a, over }) => {
                     if (!over || a.id === over.id) return
-                    const defaultOrder = ['hero', 'metrics', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
+          const defaultOrder = ['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
                     const current = Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length
                       ? cfg.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
                       : defaultOrder
@@ -2778,7 +2923,7 @@ export default function Dashboard() {
                     updateConfig('site.sectionsOrder', nextOrder)
                     refreshPreview()
                   }}>
-                  <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact']).filter((k) => ['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact'].includes(k))} strategy={verticalListSortingStrategy}>
+          <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact']).filter((k) => ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact'].includes(k))} strategy={verticalListSortingStrategy}>
                     {(['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact']).map((key) => (
                       <SectionOrderItem
                         key={key}
