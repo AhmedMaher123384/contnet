@@ -2398,7 +2398,7 @@ export default function Dashboard() {
             <div className="panel">
               <div className="panel-header">
                 <div className="panel-title">
-                  أبرز النقاط <span className="badge">{(cfg.sections.highlights.items || []).length}</span>
+                  أبرز النقاط <span className="badge">{(cfg.sections.highlights?.items || []).length}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                   <button className="btn btn-outline" onClick={addHighlight}>إضافة ميزة</button>
@@ -2421,7 +2421,8 @@ export default function Dashboard() {
 
               <div className="row-grid" style={{ marginTop: 20 }}>
                 {(() => {
-                  const itemsIds = (cfg.sections.highlights.items || []).map((_, i) => i)
+                  const items = (cfg.sections.highlights?.items || [])
+                  const itemsIds = items.map((_, i) => i)
                   return (
                     <DndContext
                       collisionDetection={closestCenter}
@@ -2429,13 +2430,15 @@ export default function Dashboard() {
                         if (!over || active.id === over.id) return;
                         const oldIndex = active.id;
                         const newIndex = over.id;
-                        const newItems = arrayMove(cfg.sections.highlights.items || [], oldIndex, newIndex);
+                        const srcItems = (cfg.sections.highlights?.items || [])
+                        const newItems = arrayMove(srcItems, oldIndex, newIndex);
+                        ensureHighlights();
                         cfg.sections.highlights.items = newItems;
                         setConfig(cfg);
                       }}
                     >
                       <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
-                        {(cfg.sections.highlights.items || []).map((item, i) => (
+                        {items.map((item, i) => (
                           <HighlightRowSortable
                             key={i}
                             id={i}
