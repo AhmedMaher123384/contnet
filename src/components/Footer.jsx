@@ -73,9 +73,16 @@ export default function Footer({ style }) {
         </div>
 
         {/* الشريط السفلي (حقوق النشر/نص قصير) */}
-        <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} {title} · {bottomText}</span>
+      <div className="footer-bottom">
+        <div className="footer-brand">
+          {config.site.logoFooter ? (
+            <img className="footer-logo" src={config.site.logoFooter} alt={title} />
+          ) : (
+            <span className="brand-text">{title}</span>
+          )}
         </div>
+        <span>© {new Date().getFullYear()} {title} · {bottomText}</span>
+      </div>
       </div>
     </footer>
   )

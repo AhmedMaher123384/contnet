@@ -360,6 +360,196 @@ const LinkRowSortable = ({ id, link, i, editLang, dir, updateLinkLabel, updateLi
   )
 }
 
+// عنصر مؤشر (Metric) قابل للسحب
+const MetricRowSortable = ({ id, m, i, editLang, dir, updateMetricLabel, updateMetricValue, safeDelete, removeMetric }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="العنوان"
+          value={m.label?.[editLang] || ''}
+          onChange={(v) => updateMetricLabel(i, v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'مثال: عملاء سعداء' : 'e.g., Happy Clients'}
+          required
+        />
+        <TextInput
+          label={editLang === 'ar' ? 'القيمة' : 'Value'}
+          value={m.value || ''}
+          onChange={(v) => updateMetricValue(i, v)}
+          dir={dir}
+          placeholder="720+"
+          required
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeMetric(i), 'حذف هذا المؤشر؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر مجال عمل (Industry) قابل للسحب
+const IndustryRowSortable = ({ id, item, i, editLang, dir, updateIndustry, safeDelete, removeIndustry }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="العنوان"
+          value={item.title?.[editLang] || ''}
+          onChange={(v) => updateIndustry(i, 'title', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'مثال: الأثاث' : 'e.g., Furniture'}
+          required
+        />
+        <TextInput
+          label="وسم"
+          value={item.tagline?.[editLang] || ''}
+          onChange={(v) => updateIndustry(i, 'tagline', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'مثال: تجارة' : 'e.g., Trading'}
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeIndustry(i), 'حذف هذا المجال؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر فلتر بورتفوليو قابل للسحب
+const PortfolioFilterRowSortable = ({ id, f, i, editLang, dir, updateFilterLabel, updateFilterValue, safeDelete, removeFilter }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="الاسم"
+          value={f.label?.[editLang] || ''}
+          onChange={(v) => updateFilterLabel(i, v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'مثال: جميع المشاريع' : 'e.g., All'}
+          required
+        />
+        <TextInput
+          label="القيمة"
+          value={f.value || ''}
+          onChange={(v) => updateFilterValue(i, v)}
+          dir="ltr"
+          placeholder="all"
+          required
+        />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeFilter(i), 'حذف هذا الفلتر؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر عنصر بورتفوليو قابل للسحب
+const PortfolioItemRowSortable = ({ id, item, i, editLang, dir, updateItemText, updateItemCategory, updateItemMetric, safeDelete, removeItem }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 140px auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput
+          label="العنوان"
+          value={item.title?.[editLang] || ''}
+          onChange={(v) => updateItemText(i, 'title', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'عنوان المشروع' : 'Project title'}
+          required
+        />
+        <TextInput
+          label="الوصف"
+          value={item.description?.[editLang] || ''}
+          onChange={(v) => updateItemText(i, 'description', v)}
+          dir={dir}
+          placeholder={editLang === 'ar' ? 'وصف مختصر' : 'Short description'}
+        />
+        <div className="form-group">
+          <label>{editLang === 'ar' ? 'الفئة' : 'Category'}</label>
+          <select value={item.category || 'all'} onChange={(e) => updateItemCategory(i, e.target.value)}>
+            <option value="all">{editLang === 'ar' ? 'الكل' : 'All'}</option>
+            <option value="furniture">{editLang === 'ar' ? 'الأثاث' : 'Furniture'}</option>
+            <option value="building">{editLang === 'ar' ? 'مواد البناء' : 'Building Materials'}</option>
+            <option value="cosmetics">{editLang === 'ar' ? 'مستحضرات التجميل' : 'Cosmetics'}</option>
+          </select>
+        </div>
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeItem(i), 'حذف هذا المشروع؟')}>حذف</button>
+      </div>
+      <div className="row-grid" style={{ marginTop: 10 }}>
+        <TextInput label="العملاء" value={item.metrics?.clients || ''} onChange={(v) => updateItemMetric(i, 'clients', v)} dir={dir} placeholder="150+" />
+        <TextInput label="الإيرادات" value={item.metrics?.revenue || ''} onChange={(v) => updateItemMetric(i, 'revenue', v)} dir={dir} placeholder="$2.5M" />
+        <TextInput label="الرضا" value={item.metrics?.satisfaction || ''} onChange={(v) => updateItemMetric(i, 'satisfaction', v)} dir={dir} placeholder="98%" />
+        <TextInput label="المدة" value={item.metrics?.duration || ''} onChange={(v) => updateItemMetric(i, 'duration', v)} dir={dir} placeholder="2018-2024" />
+      </div>
+    </div>
+  )
+}
+
+// عنصر رأي عميل قابل للسحب
+const TestimonialRowSortable = ({ id, tItem, i, editLang, dir, updateTestimonialText, updateTestimonialName, safeDelete, removeTestimonial }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 160px auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput label="الاقتباس" value={tItem.quote?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'quote', v)} dir={dir} placeholder={editLang === 'ar' ? 'نص الرأي' : 'Quote'} required />
+        <TextInput label="الاسم" value={tItem.name || ''} onChange={(v) => updateTestimonialName(i, v)} dir={dir} placeholder={editLang === 'ar' ? 'الاسم' : 'Name'} required />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeTestimonial(i), 'حذف هذا الرأي؟')}>حذف</button>
+      </div>
+      <div className="row-grid" style={{ marginTop: 10 }}>
+        <TextInput label="الدور" value={tItem.role?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'role', v)} dir={dir} placeholder={editLang === 'ar' ? 'مثال: مدير المشروع' : 'e.g., Project Manager'} />
+        <TextInput label="الشركة" value={tItem.company?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'company', v)} dir={dir} placeholder={editLang === 'ar' ? 'اسم الشركة' : 'Company'} />
+        <TextInput label="الدولة" value={tItem.country?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'country', v)} dir={dir} placeholder={editLang === 'ar' ? 'الدولة' : 'Country'} />
+        <TextInput label="المشروع" value={tItem.project?.[editLang] || ''} onChange={(v) => updateTestimonialText(i, 'project', v)} dir={dir} placeholder={editLang === 'ar' ? 'اسم المشروع' : 'Project'} />
+      </div>
+    </div>
+  )
+}
+
+// عنصر ملخص شهادة (Summary) قابل للسحب
+const SummaryRowSortable = ({ id, s, i, editLang, dir, updateSummaryLabel, updateSummaryValue, safeDelete, removeSummary }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput label={editLang === 'ar' ? 'العنوان' : 'Label'} value={s.label?.[editLang] || ''} onChange={(v) => updateSummaryLabel(i, v)} dir={dir} placeholder={editLang === 'ar' ? 'مثال: رضا العملاء' : 'e.g., Satisfaction'} required />
+        <TextInput label={editLang === 'ar' ? 'القيمة' : 'Value'} value={s.value || ''} onChange={(v) => updateSummaryValue(i, v)} dir={dir} placeholder="98%" required />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeSummary(i), 'حذف هذا السطر؟')}>حذف</button>
+      </div>
+    </div>
+  )
+}
+
+// عنصر عضو فريق قابل للسحب
+const TeamMemberRowSortable = ({ id, m, i, editLang, dir, updateMemberText, safeDelete, removeMember }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition }
+  return (
+    <div ref={setNodeRef} style={style} className="row-cta" {...attributes} {...listeners}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
+        <TextInput label="الاسم" value={m.name?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'name', v)} dir={dir} placeholder={editLang === 'ar' ? 'الاسم' : 'Name'} required />
+        <TextInput label="الدور" value={m.role?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'role', v)} dir={dir} placeholder={editLang === 'ar' ? 'الدور' : 'Role'} />
+        <button className="btn btn-outline">↕️</button>
+        <button className="btn btn-ghost" onClick={() => safeDelete(() => removeMember(i), 'حذف هذا العضو؟')}>حذف</button>
+      </div>
+      <div className="row-grid" style={{ marginTop: 10 }}>
+        <TextInput label="نبذة" value={m.bio?.[editLang] || ''} onChange={(v) => updateMemberText(i, 'bio', v)} dir={dir} placeholder={editLang === 'ar' ? 'مختصر السيرة' : 'Short bio'} />
+      </div>
+    </div>
+  )
+}
+
 // عنصر عمود فوتر قابل للسحب لإعادة الترتيب
 const FooterColumnSortable = ({ id, col, i, editLang, dir, updateFooterColumnTitle, addFooterLink, updateFooterLinkLabel, updateFooterLinkHref, removeFooterLink, removeFooterColumn, setConfig, cfg, safeDelete }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
@@ -673,6 +863,59 @@ export default function Dashboard() {
     [cfg.sections.contact.links[i], cfg.sections.contact.links[j]] = [cfg.sections.contact.links[j], cfg.sections.contact.links[i]];
     setConfig(cfg);
   };
+
+  // ======== إدارة المؤشرات (Metrics) ========
+  const addMetric = () => { (cfg.sections.metrics.items = cfg.sections.metrics.items || []).push({ label: { en: '', ar: '' }, value: '' }); setConfig(cfg); };
+  const updateMetricLabel = (i, v) => { cfg.sections.metrics.items[i].label[editLang] = v; setConfig(cfg); };
+  const updateMetricValue = (i, v) => { cfg.sections.metrics.items[i].value = v; setConfig(cfg); };
+  const removeMetric = (i) => { cfg.sections.metrics.items.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة مجالات العمل (Industries) ========
+  const addIndustry = () => { (cfg.sections.industries.items = cfg.sections.industries.items || []).push({ title: { en: '', ar: '' }, tagline: { en: '', ar: '' } }); setConfig(cfg); };
+  const updateIndustry = (i, field, v) => { cfg.sections.industries.items[i][field][editLang] = v; setConfig(cfg); };
+  const removeIndustry = (i) => { cfg.sections.industries.items.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة فلاتر البورتفوليو ========
+  const addFilter = () => { (cfg.sections.portfolio.filters = cfg.sections.portfolio.filters || []).push({ label: { en: '', ar: '' }, value: '' }); setConfig(cfg); };
+  const updateFilterLabel = (i, v) => { cfg.sections.portfolio.filters[i].label[editLang] = v; setConfig(cfg); };
+  const updateFilterValue = (i, v) => { cfg.sections.portfolio.filters[i].value = v; setConfig(cfg); };
+  const removeFilter = (i) => { cfg.sections.portfolio.filters.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة عناصر البورتفوليو ========
+  const addPortfolioItem = () => {
+    (cfg.sections.portfolio.items = cfg.sections.portfolio.items || []).push({
+      category: 'all',
+      title: { en: '', ar: '' },
+      description: { en: '', ar: '' },
+      metrics: { clients: '', revenue: '', satisfaction: '', duration: '' }
+    });
+    setConfig(cfg);
+  };
+  const updateItemText = (i, field, v) => { cfg.sections.portfolio.items[i][field][editLang] = v; setConfig(cfg); };
+  const updateItemCategory = (i, v) => { cfg.sections.portfolio.items[i].category = v; setConfig(cfg); };
+  const updateItemMetric = (i, key, v) => { (cfg.sections.portfolio.items[i].metrics = cfg.sections.portfolio.items[i].metrics || {})[key] = v; setConfig(cfg); };
+  const removeItem = (i) => { cfg.sections.portfolio.items.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة ملخص الشهادات (Testimonials Summary) ========
+  const addSummary = () => { (cfg.sections.testimonials.summary = cfg.sections.testimonials.summary || []).push({ label: { en: '', ar: '' }, value: '' }); setConfig(cfg); };
+  const updateSummaryLabel = (i, v) => { cfg.sections.testimonials.summary[i].label[editLang] = v; setConfig(cfg); };
+  const updateSummaryValue = (i, v) => { cfg.sections.testimonials.summary[i].value = v; setConfig(cfg); };
+  const removeSummary = (i) => { cfg.sections.testimonials.summary.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة آراء العملاء (Testimonials Items) ========
+  const addTestimonial = () => { (cfg.sections.testimonials.items = cfg.sections.testimonials.items || []).push({ quote: { en: '', ar: '' }, name: '', role: { en: '', ar: '' }, company: { en: '', ar: '' }, country: { en: '', ar: '' }, project: { en: '', ar: '' } }); setConfig(cfg); };
+  const updateTestimonialText = (i, key, v) => { cfg.sections.testimonials.items[i][key][editLang] = v; setConfig(cfg); };
+  const updateTestimonialName = (i, v) => { cfg.sections.testimonials.items[i].name = v; setConfig(cfg); };
+  const removeTestimonial = (i) => { cfg.sections.testimonials.items.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة الفريق (Team) ========
+  const addMember = () => { (cfg.sections.team.members = cfg.sections.team.members || []).push({ name: { en: '', ar: '' }, role: { en: '', ar: '' }, bio: { en: '', ar: '' } }); setConfig(cfg); };
+  const updateMemberText = (i, key, v) => { cfg.sections.team.members[i][key][editLang] = v; setConfig(cfg); };
+  const removeMember = (i) => { cfg.sections.team.members.splice(i, 1); setConfig(cfg); };
+
+  // ======== إدارة دعوة للإجراء (CTA) ========
+  const setCTAButtonText = (v) => { cfg.sections.cta.cta.text[editLang] = v; setConfig(cfg); };
+  const setCTAButtonLink = (v) => { cfg.sections.cta.cta.link = v; setConfig(cfg); };
 
   const addNavLink = () => {
     cfg.site.menu = cfg.site.menu || [];
@@ -1388,15 +1631,21 @@ export default function Dashboard() {
             >
               📐 ترتيب الأقسام
             </button>
-            {['hero', 'about', 'services', 'contact', 'footer', 'custom'].map((key) => (
+            {['hero', 'metrics', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact', 'footer', 'custom'].map((key) => (
               <button
                 key={key}
                 className={`nav-item ${active === key ? 'active' : ''}`}
                 onClick={() => { setActive(key); setMobileMenuOpen(false); }}
               >
                 {key === 'hero' && '🖼️ الهيرو'}
+                {key === 'metrics' && '📊 المؤشرات'}
                 {key === 'about' && 'ℹ️ من نحن'}
+                {key === 'industries' && '🏭 مجالات العمل'}
                 {key === 'services' && '🛠️ الخدمات'}
+                {key === 'portfolio' && '🗂️ سابقة الأعمال'}
+                {key === 'testimonials' && '💬 آراء العملاء'}
+                {key === 'team' && '👥 الفريق'}
+                {key === 'cta' && '🚀 دعوة للإجراء'}
                 {key === 'contact' && '📞 التواصل'}
                 {key === 'footer' && '🔻 الفوتر'}
                 {key === 'custom' && '🧩 مخصص'}
@@ -1426,11 +1675,6 @@ export default function Dashboard() {
           <div className="dashboard-topbar">
             <div className="topbar-left">
               <span className="badge">القسم: {activeLabel}</span>
-              {lastSavedAt && (
-                <span className="badge" aria-live="polite" style={{ marginInlineStart: 8 }}>
-                  {unsaved ? 'يوجد تغييرات غير محفوظة' : `آخر حفظ منذ ${Math.max(0, Math.round((Date.now() - lastSavedAt)/1000))}ث`}
-                </span>
-              )}
             </div>
             <div className="topbar-right">
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -1483,6 +1727,38 @@ export default function Dashboard() {
                 onChange={(v) => setSiteText('footerText', v)}
                 dir={dir}
                 placeholder={editLang === 'ar' ? '© جميع الحقوق محفوظة' : '© All rights reserved'}
+              />
+            </div>
+
+            <div className="panel-header" style={{ marginTop: 24 }}>
+              <div className="panel-title">العلامة التجارية</div>
+            </div>
+            <div className="row-grid row-2" style={{ marginTop: 12 }}>
+              <URLInput
+                label="شعار النافبار"
+                value={cfg.site.logoNavbar || ''}
+                onChange={(v) => { cfg.site.logoNavbar = v; setConfig(cfg); }}
+                placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الهيدر' : 'Navbar logo image URL'}
+              />
+              <URLInput
+                label="شعار الفوتر"
+                value={cfg.site.logoFooter || ''}
+                onChange={(v) => { cfg.site.logoFooter = v; setConfig(cfg); }}
+                placeholder={editLang === 'ar' ? 'رابط صورة الشعار في الفوتر' : 'Footer logo image URL'}
+              />
+              <URLInput
+                label="الصورة (فافيكون)"
+                value={cfg.site.favicon || ''}
+                onChange={(v) => { cfg.site.favicon = v; setConfig(cfg); }}
+                placeholder={editLang === 'ar' ? '/favicon.png أو رابط مباشر' : '/favicon.png or full URL'}
+              />
+              <TextInput
+                label="عنوان التاب"
+                value={(cfg.site.tabTitle?.[editLang] || '')}
+                onChange={(v) => setSiteText('tabTitle', v)}
+                dir={dir}
+                placeholder={editLang === 'ar' ? 'نص يظهر بجوار الفافيكون' : 'Text shown beside favicon'}
+                required
               />
             </div>
 
@@ -1982,6 +2258,297 @@ export default function Dashboard() {
             </div>
           )}
 
+          {/* Metrics Panel */}
+          {active === 'metrics' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  المؤشرات <span className="badge">{(cfg.sections.metrics.items || []).length}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button className="btn btn-outline" onClick={addMetric}>إضافة مؤشر</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.metrics.enabled} onChange={(e) => setSectionEnabled('metrics', e.target.checked)} id="metrics-enabled" />
+                <label htmlFor="metrics-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.metrics.items || []).map((m, i) => ({ m, i }));
+                  const itemsIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.metrics.items, oldIndex, newIndex);
+                      cfg.sections.metrics.items = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ m, i }) => (
+                          <MetricRowSortable key={i} id={i} m={m} i={i} editLang={editLang} dir={dir} updateMetricLabel={updateMetricLabel} updateMetricValue={updateMetricValue} safeDelete={safeDelete} removeMetric={removeMetric} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 24 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={cfg.sections.metrics.colors.primary || ''} onChange={(v) => setSectionColor('metrics', 'primary', v)} />
+                <ColorInput label="الثانوي" value={cfg.sections.metrics.colors.secondary || ''} onChange={(v) => setSectionColor('metrics', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={cfg.sections.metrics.colors.background || ''} onChange={(v) => setSectionColor('metrics', 'background', v)} />
+                <ColorInput label="النص" value={cfg.sections.metrics.colors.text || ''} onChange={(v) => setSectionColor('metrics', 'text', v)} required />
+              </div>
+            </div>
+          )}
+
+          {/* Industries Panel */}
+          {active === 'industries' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  مجالات العمل <span className="badge">{(cfg.sections.industries.items || []).length}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button className="btn btn-outline" onClick={addIndustry}>إضافة مجال</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.industries.enabled} onChange={(e) => setSectionEnabled('industries', e.target.checked)} id="industries-enabled" />
+                <label htmlFor="industries-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <TextInput label="العنوان" value={cfg.sections.industries.heading[editLang]} onChange={(v) => setSectionText('industries', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'مجالات عملنا' : 'Our Work Areas'} required />
+
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.industries.items || []).map((item, i) => ({ item, i }));
+                  const itemsIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.industries.items, oldIndex, newIndex);
+                      cfg.sections.industries.items = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ item, i }) => (
+                          <IndustryRowSortable key={i} id={i} item={item} i={i} editLang={editLang} dir={dir} updateIndustry={updateIndustry} safeDelete={safeDelete} removeIndustry={removeIndustry} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Portfolio Panel */}
+          {active === 'portfolio' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  سابقة الأعمال <span className="badge">{(cfg.sections.portfolio.items || []).length}</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.portfolio.enabled} onChange={(e) => setSectionEnabled('portfolio', e.target.checked)} id="portfolio-enabled" />
+                <label htmlFor="portfolio-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <TextInput label="العنوان" value={cfg.sections.portfolio.heading[editLang]} onChange={(v) => setSectionText('portfolio', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سابقة الأعمال' : 'Portfolio'} required />
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الفلاتر <span className="badge">{(cfg.sections.portfolio.filters || []).length}</span></div>
+                <button className="btn btn-outline" onClick={addFilter}>إضافة فلتر</button>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const filters = (cfg.sections.portfolio.filters || []).map((f, i) => ({ f, i }));
+                  const filterIds = filters.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.portfolio.filters, oldIndex, newIndex);
+                      cfg.sections.portfolio.filters = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={filterIds} strategy={verticalListSortingStrategy}>
+                        {filters.map(({ f, i }) => (
+                          <PortfolioFilterRowSortable key={i} id={i} f={f} i={i} editLang={editLang} dir={dir} updateFilterLabel={updateFilterLabel} updateFilterValue={updateFilterValue} safeDelete={safeDelete} removeFilter={removeFilter} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">المشاريع <span className="badge">{(cfg.sections.portfolio.items || []).length}</span></div>
+                <button className="btn btn-outline" onClick={addPortfolioItem}>إضافة مشروع</button>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.portfolio.items || []).map((item, i) => ({ item, i }));
+                  const itemIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.portfolio.items, oldIndex, newIndex);
+                      cfg.sections.portfolio.items = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ item, i }) => (
+                          <PortfolioItemRowSortable key={i} id={i} item={item} i={i} editLang={editLang} dir={dir} updateItemText={updateItemText} updateItemCategory={updateItemCategory} updateItemMetric={updateItemMetric} safeDelete={safeDelete} removeItem={removeItem} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Testimonials Panel */}
+          {active === 'testimonials' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  آراء العملاء <span className="badge">{(cfg.sections.testimonials.items || []).length}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button className="btn btn-outline" onClick={addTestimonial}>إضافة رأي</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.testimonials.enabled} onChange={(e) => setSectionEnabled('testimonials', e.target.checked)} id="testimonials-enabled" />
+                <label htmlFor="testimonials-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <TextInput label="العنوان" value={cfg.sections.testimonials.heading[editLang]} onChange={(v) => setSectionText('testimonials', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'آراء العملاء' : 'Testimonials'} required />
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">ملخص القسم <span className="badge">{(cfg.sections.testimonials.summary || []).length}</span></div>
+                <button className="btn btn-outline" onClick={addSummary}>إضافة سطر</button>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.testimonials.summary || []).map((s, i) => ({ s, i }));
+                  const itemsIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.testimonials.summary, oldIndex, newIndex);
+                      cfg.sections.testimonials.summary = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ s, i }) => (
+                          <SummaryRowSortable key={i} id={i} s={s} i={i} editLang={editLang} dir={dir} updateSummaryLabel={updateSummaryLabel} updateSummaryValue={updateSummaryValue} safeDelete={safeDelete} removeSummary={removeSummary} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">التقييمات</div>
+              </div>
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.testimonials.items || []).map((tItem, i) => ({ tItem, i }));
+                  const itemsIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.testimonials.items, oldIndex, newIndex);
+                      cfg.sections.testimonials.items = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ tItem, i }) => (
+                          <TestimonialRowSortable key={i} id={i} tItem={tItem} i={i} editLang={editLang} dir={dir} updateTestimonialText={updateTestimonialText} updateTestimonialName={updateTestimonialName} safeDelete={safeDelete} removeTestimonial={removeTestimonial} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* Team Panel */}
+          {active === 'team' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">
+                  الفريق <span className="badge">{(cfg.sections.team.members || []).length}</span>
+                </div>
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  <button className="btn btn-outline" onClick={addMember}>إضافة عضو</button>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.team.enabled} onChange={(e) => setSectionEnabled('team', e.target.checked)} id="team-enabled" />
+                <label htmlFor="team-enabled" className="panel-desc">مفعّل</label>
+              </div>
+
+              <TextInput label="العنوان" value={cfg.sections.team.heading[editLang]} onChange={(v) => setSectionText('team', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'الفريق' : 'Our Team'} required />
+
+              <div className="row-grid" style={{ marginTop: 12 }}>
+                {(() => {
+                  const items = (cfg.sections.team.members || []).map((m, i) => ({ m, i }));
+                  const itemsIds = items.map(({ i }) => i);
+                  return (
+                    <DndContext collisionDetection={closestCenter} onDragEnd={({ active, over }) => {
+                      if (!over || active.id === over.id) return;
+                      const oldIndex = active.id; const newIndex = over.id;
+                      const newItems = arrayMove(cfg.sections.team.members, oldIndex, newIndex);
+                      cfg.sections.team.members = newItems; setConfig(cfg);
+                    }}>
+                      <SortableContext items={itemsIds} strategy={verticalListSortingStrategy}>
+                        {items.map(({ m, i }) => (
+                          <TeamMemberRowSortable key={i} id={i} m={m} i={i} editLang={editLang} dir={dir} updateMemberText={updateMemberText} safeDelete={safeDelete} removeMember={removeMember} />
+                        ))}
+                      </SortableContext>
+                    </DndContext>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* CTA Panel */}
+          {active === 'cta' && (
+            <div className="panel">
+              <div className="panel-header">
+                <div className="panel-title">دعوة للإجراء</div>
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
+                <input type="checkbox" checked={cfg.sections.cta.enabled} onChange={(e) => setSectionEnabled('cta', e.target.checked)} id="cta-enabled" />
+                <label htmlFor="cta-enabled" className="panel-desc">مفعّل</label>
+              </div>
+              <div className="form-grid">
+                <TextInput label="العنوان" value={cfg.sections.cta.heading[editLang]} onChange={(v) => setSectionText('cta', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'جاهز للبدء؟' : 'Ready to start?'} required />
+                <TextInput label="وصف موجز" value={cfg.sections.cta.subheading[editLang]} onChange={(v) => setSectionText('cta', 'subheading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سطر تمهيدي' : 'Lead-in text'} />
+                <TextInput label="نص الزر" value={cfg.sections.cta.cta.text[editLang]} onChange={(v) => setCTAButtonText(v)} dir={dir} placeholder={editLang === 'ar' ? 'ابدأ اليوم' : 'Start Today'} required />
+                <URLInput label="رابط الزر" value={cfg.sections.cta.cta.link || ''} onChange={(v) => setCTAButtonLink(v)} placeholder="#contact أو https://..." required />
+              </div>
+            </div>
+          )}
+
           {/* Contact Panel */}
           {active === 'contact' && (
             <div className="panel">
@@ -2204,7 +2771,7 @@ export default function Dashboard() {
                 <DndContext collisionDetection={closestCenter}
                   onDragEnd={({ active: a, over }) => {
                     if (!over || a.id === over.id) return
-                    const defaultOrder = ['hero', 'about', 'services', 'contact']
+                    const defaultOrder = ['hero', 'metrics', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
                     const current = Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length
                       ? cfg.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
                       : defaultOrder
@@ -2214,12 +2781,23 @@ export default function Dashboard() {
                     updateConfig('site.sectionsOrder', nextOrder)
                     refreshPreview()
                   }}>
-                  <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','about','services','contact']).filter((k) => ['hero','about','services','contact'].includes(k))} strategy={verticalListSortingStrategy}>
-                    {(['hero', 'about', 'services', 'contact']).map((key) => (
+                  <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact']).filter((k) => ['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact'].includes(k))} strategy={verticalListSortingStrategy}>
+                    {(['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact']).map((key) => (
                       <SectionOrderItem
                         key={key}
                         id={key}
-                        label={key === 'hero' ? '🖼️ الهيرو' : key === 'about' ? 'ℹ️ من نحن' : key === 'services' ? '🛠️ الخدمات' : '📞 التواصل'}
+                        label={
+                          key === 'hero' ? '🖼️ الهيرو'
+                          : key === 'metrics' ? '📊 المؤشرات'
+                          : key === 'about' ? 'ℹ️ من نحن'
+                          : key === 'industries' ? '🏭 مجالات العمل'
+                          : key === 'services' ? '🛠️ الخدمات'
+                          : key === 'portfolio' ? '🗂️ سابقة الأعمال'
+                          : key === 'testimonials' ? '💬 آراء العملاء'
+                          : key === 'team' ? '👥 الفريق'
+                          : key === 'cta' ? '🚀 دعوة للإجراء'
+                          : '📞 التواصل'
+                        }
                       />
                     ))}
                   </SortableContext>

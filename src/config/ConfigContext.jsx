@@ -56,7 +56,30 @@ export function ConfigProvider({ children }) {
     } catch {}
     const metaTheme = document.querySelector('meta[name="theme-color"]')
     if (metaTheme) metaTheme.content = theme.primary
-  }, [config])
+    // Update document title based on tabTitle or site.title
+    try {
+      const titleObj = (config.site?.tabTitle && (config.site.tabTitle.en || config.site.tabTitle.ar)) ? config.site.tabTitle : config.site?.title
+      const titleStr = typeof titleObj === 'string' ? titleObj : (titleObj?.[lang] ?? '')
+      if (titleStr) document.title = titleStr
+    } catch {}
+    // Update favicon link dynamically
+    try {
+      const href = config.site?.favicon || ''
+      const prevIcon = document.getElementById('site-favicon')
+      if (!href) {
+        if (prevIcon) prevIcon.remove()
+      } else {
+        let link = prevIcon
+        if (!link) {
+          link = document.createElement('link')
+          link.rel = 'icon'
+          link.id = 'site-favicon'
+          document.head.appendChild(link)
+        }
+        link.href = href
+      }
+    } catch {}
+  }, [config, lang])
 
   // Auto-save with debounce (800ms), track unsaved state
   useEffect(() => {

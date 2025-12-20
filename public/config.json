@@ -11,15 +11,22 @@
     }
   },
   "site": {
-    "title": { "en": "Acme Corp", "ar": "شركة أكمي" },
-    "lang": "en",
+    "title": { "en": "Falcons", "ar": "فالكونز" },
+    "lang": "ar",
+    "logoNavbar": "",
+    "logoFooter": "",
+    "favicon": "",
+    "tabTitle": { "en": "", "ar": "" },
     "menu": [
-      { "label": { "en": "About", "ar": "من نحن" }, "href": "#about" },
+      { "label": { "en": "About Us", "ar": "من نحن" }, "href": "#about" },
       { "label": { "en": "Services", "ar": "خدماتنا" }, "href": "#services" },
-      { "label": { "en": "Contact", "ar": "تواصل" }, "href": "#contact" }
+      { "label": { "en": "Industries", "ar": "مجالات عملنا" }, "href": "#industries" },
+      { "label": { "en": "Portfolio", "ar": "سابقة الأعمال" }, "href": "#portfolio" },
+      { "label": { "en": "Testimonials", "ar": "آراء العملاء" }, "href": "#testimonials" },
+      { "label": { "en": "Team", "ar": "فريقنا" }, "href": "#team" },
+      { "label": { "en": "Contact", "ar": "اتصل بنا" }, "href": "#contact" }
     ],
-    "footerText": { "en": "Building simple, modern solutions.", "ar": "نقدّم حلولًا بسيطة وعصرية." }
-    ,
+    "footerText": { "en": "WE BUILD BUSINESS WITH YOU", "ar": "نبني الأعمال معك" },
     "cloudinary": {
       "cloud_name": "dm3tq1nt7",
       "upload_preset": "ecommerce",
@@ -40,48 +47,40 @@
       "main": {
         "columns": [
           {
-            "title": { "en": "Company", "ar": "الشركة" },
+            "title": { "en": "Falcons", "ar": "فالكونز" },
             "links": [
-              { "label": { "en": "About", "ar": "من نحن" }, "href": "#about" },
-              { "label": { "en": "Careers", "ar": "وظائف" }, "href": "#" },
-              { "label": { "en": "Press", "ar": "الصحافة" }, "href": "#" }
+              { "label": { "en": "About Us", "ar": "من نحن" }, "href": "#about" },
+              { "label": { "en": "Services", "ar": "خدماتنا" }, "href": "#services" },
+              { "label": { "en": "Industries", "ar": "مجالات عملنا" }, "href": "#industries" }
             ]
           },
           {
-            "title": { "en": "Services", "ar": "الخدمات" },
+            "title": { "en": "Explore", "ar": "تعرّف علينا" },
             "links": [
-              { "label": { "en": "Consulting", "ar": "استشارات" }, "href": "#services" },
-              { "label": { "en": "Implementation", "ar": "تنفيذ" }, "href": "#services" },
-              { "label": { "en": "Support", "ar": "دعم" }, "href": "#contact" }
+              { "label": { "en": "Portfolio", "ar": "سابقة الأعمال" }, "href": "#portfolio" },
+              { "label": { "en": "Testimonials", "ar": "آراء العملاء" }, "href": "#testimonials" },
+              { "label": { "en": "Team", "ar": "فريقنا" }, "href": "#team" }
             ]
           },
           {
-            "title": { "en": "Resources", "ar": "المصادر" },
+            "title": { "en": "Contact", "ar": "اتصل بنا" },
             "links": [
-              { "label": { "en": "Blog", "ar": "المدونة" }, "href": "#" },
-              { "label": { "en": "Docs", "ar": "التوثيق" }, "href": "#" },
-              { "label": { "en": "Community", "ar": "المجتمع" }, "href": "#" }
-            ]
-          },
-          {
-            "title": { "en": "Contact", "ar": "تواصل" },
-            "links": [
-              { "label": { "en": "Email", "ar": "بريد" }, "href": "mailto:info@example.com" },
-              { "label": { "en": "Phone", "ar": "هاتف" }, "href": "tel:+123456789" },
-              { "label": { "en": "Support", "ar": "الدعم" }, "href": "#contact" }
+              { "label": { "en": "Email", "ar": "البريد" }, "href": "mailto:falconsmgr@hotmail.com" },
+              { "label": { "en": "Phone", "ar": "الهاتف" }, "href": "tel:+862061093893" },
+              { "label": { "en": "WhatsApp", "ar": "واتس آب" }, "href": "https://wa.me/8613710404949" }
             ]
           }
         ]
       },
       "bottom": {
-        "text": { "en": "All rights reserved.", "ar": "جميع الحقوق محفوظة." }
+        "text": { "en": "Copyright 2025 Falcons. All rights reserved. | Website developed by UD", "ar": "حقوق النشر 2025 فالكونز. جميع الحقوق محفوظة. | Website developed by UD" }
       }
     },
     "hero": {
       "enabled": true,
-      "heading": { "en": "We build modern solutions.", "ar": "نحن نبني حلولًا عصرية." },
-      "subheading": { "en": "Fast, simple, reliable — tailored to your business.", "ar": "سريعة وبسيطة وموثوقة — حسب احتياجك." },
-      "cta": { "text": { "en": "Get Started", "ar": "ابدأ الآن" }, "link": "#contact" },
+      "heading": { "en": "WE BUILD BUSINESS WITH YOU", "ar": "نبني الأعمال معك" },
+      "subheading": { "en": "With 15+ years of experience, we help companies grow.", "ar": "مع أكثر من 15 عاماً من الخبرة، نساعد الشركات على النمو." },
+      "cta": { "text": { "en": "Contact Us", "ar": "اتصل بنا" }, "link": "#contact" },
       "backgroundImage": "",
       "colors": { "primary": "#0ea5e9", "secondary": "#f97316", "background": "", "text": "", "ctaBg": "", "ctaText": "" }
     },
@@ -89,39 +88,158 @@
       "enabled": true,
       "heading": { "en": "About Us", "ar": "من نحن" },
       "paragraphs": [
-        { "en": "Acme Corp crafts fast, minimal, and reliable digital products.", "ar": "شركة أكمي تبني منتجات رقمية سريعة وبسيطة وموثوقة." },
-        { "en": "We focus on clarity and simplicity to deliver real business value.", "ar": "نركّز على البساطة والوضوح لتحقيق قيمة حقيقية." }
+        { "en": "FALCONS is a registered trading company in Hong Kong, established in 2004 with over 15 years of experience in international trade.", "ar": "فالكونز شركة تجارية مسجلة في هونج كونج، تأسست عام 2004 ولديها أكثر من 15 عاماً من الخبرة في التجارة الدولية." },
+        { "en": "We specialize in trading Furniture, Building Materials and Cosmetics with direct supply from Chinese suppliers in Hong Kong and mainland China.", "ar": "نتخصص في تجارة الأثاث ومواد البناء ومستحضرات التجميل مع إمداد مباشر من الموردين الصينيين في هونج كونج والصين القارية." },
+        { "en": "Our commitment to quality and customer satisfaction has made us a trusted partner for businesses worldwide.", "ar": "التزامنا بالجودة ورضا العملاء جعلنا شريكاً موثوقاً للشركات حول العالم." }
       ],
       "image": "",
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+    },
+    "metrics": {
+      "enabled": true,
+      "items": [
+        { "label": { "en": "Happy Clients", "ar": "عملاء سعداء" }, "value": "720+" },
+        { "label": { "en": "Revenue Generated", "ar": "الإيرادات" }, "value": "$15M+" },
+        { "label": { "en": "Satisfaction Rate", "ar": "نسبة الرضا" }, "value": "97%" },
+        { "label": { "en": "Countries Served", "ar": "الدول المخدومة" }, "value": "50+" }
+      ],
       "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
     },
     "services": {
       "enabled": true,
       "heading": { "en": "Our Services", "ar": "خدماتنا" },
       "items": [
-        { "title": { "en": "Design", "ar": "تصميم" }, "description": { "en": "UI/UX design for web and mobile.", "ar": "تصميم واجهات وتجربة مستخدم للويب والموبايل." }, "icon": "💡" },
-        { "title": { "en": "Development", "ar": "تطوير" }, "description": { "en": "Clean, maintainable full‑stack web development.", "ar": "تطوير ويب متكامل نظيف وقابل للصيانة." }, "icon": "⚙️" },
-        { "title": { "en": "Consulting", "ar": "استشارات" }, "description": { "en": "Lean product strategy and technical guidance.", "ar": "استراتيجيات منتجات خفيفة وتوجيه تقني." }, "icon": "🧭" }
+        { "title": { "en": "Consulting", "ar": "الاستشارات" }, "description": { "en": "Free consulting to select ideal suppliers and maintain mutual benefits.", "ar": "نقدّم استشارات مجانية لاختيار المورد المثالي وحفظ المنافع المتبادلة." }, "icon": "🧠" },
+        { "title": { "en": "Customer Support", "ar": "الدعم" }, "description": { "en": "Support across orders and post-sales services to ensure satisfaction.", "ar": "ندعم العملاء في كل خطوات الطلبات ونقدّم خدمات ما بعد البيع لضمان الرضا." }, "icon": "🤝" },
+        { "title": { "en": "Sourcing & Verification", "ar": "البحث والتحقق" }, "description": { "en": "Product sourcing, alternative pricing, pre‑delivery inspection, document verification, certifications.", "ar": "البحث عن المنتجات، تقديم أسعار بديلة، فحص قبل التسليم، التحقق من المستندات، تقديم شهادات." }, "icon": "🔎" },
+        { "title": { "en": "Advisory", "ar": "نصائح وخبرات" }, "description": { "en": "Financial tips to save time and money, and marketing expertise.", "ar": "نصائح مالية لتوفير الوقت والمال، وخبرة تسويقية للوصول لقاعدة العملاء." }, "icon": "📈" }
       ],
       "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
     },
+    "industries": {
+      "enabled": true,
+      "heading": { "en": "Our Work Areas", "ar": "مجالات عملنا" },
+      "items": [
+        { "title": { "en": "Furniture", "ar": "الأثاث" }, "tagline": { "en": "Trading", "ar": "تجارة" } },
+        { "title": { "en": "Building Materials", "ar": "مواد البناء" }, "tagline": { "en": "Trading", "ar": "تجارة" } },
+        { "title": { "en": "Cosmetics", "ar": "مستحضرات التجميل" }, "tagline": { "en": "Trading", "ar": "تجارة" } }
+      ]
+    },
+    "portfolio": {
+      "enabled": true,
+      "heading": { "en": "Portfolio", "ar": "سابقة الأعمال" },
+      "filters": [
+        { "label": { "en": "All", "ar": "جميع المشاريع" }, "value": "all" },
+        { "label": { "en": "Furniture", "ar": "الأثاث" }, "value": "furniture" },
+        { "label": { "en": "Building Materials", "ar": "مواد البناء" }, "value": "building" },
+        { "label": { "en": "Cosmetics", "ar": "مستحضرات التجميل" }, "value": "cosmetics" }
+      ],
+      "items": [
+        {
+          "category": "furniture",
+          "title": { "en": "Excellence in Furniture Trading", "ar": "التميز في تجارة الأثاث" },
+          "description": { "en": "Comprehensive network connecting leading Chinese manufacturers to global markets, specializing in office furniture, home decor, and luxury pieces.", "ar": "شبكة تجارة شاملة تربط المصنعين الصينيين المميزين بالأسواق العالمية؛ نتخصص في أثاث المكاتب والديكور المنزلي والقطع الفاخرة." },
+          "metrics": { "clients": "150+", "revenue": "$2.5M", "satisfaction": "98%", "duration": "2018-2024" }
+        },
+        {
+          "category": "building",
+          "title": { "en": "Building Materials Distribution", "ar": "توزيع مواد البناء" },
+          "description": { "en": "Robust distribution network for high-quality building materials serving Asia and the Middle East with premium supplies and reliable delivery.", "ar": "شبكة توزيع قوية لمواد بناء عالية الجودة تخدم آسيا والشرق الأوسط بمواد فاخرة وتسليم موثوق." },
+          "metrics": { "clients": "200+", "revenue": "$4.2M", "satisfaction": "96%", "duration": "2019-2024" }
+        },
+        {
+          "category": "cosmetics",
+          "title": { "en": "Cosmetics & Beauty Trading", "ar": "مستحضرات التجميل والجمال" },
+          "description": { "en": "Specialized cosmetics trading connecting luxury brands to global markets with quality assurance and regulatory compliance expertise.", "ar": "قسم تجارة متخصص يربط العلامات التجارية الفاخرة بالأسواق العالمية عبر ضمان الجودة والامتثال." },
+          "metrics": { "clients": "120+", "revenue": "$3.8M", "satisfaction": "97%", "duration": "2020-2024" }
+        },
+        {
+          "category": "furniture",
+          "title": { "en": "Luxury Furniture Collection", "ar": "مجموعة الأثاث الفاخر" },
+          "description": { "en": "Curated luxury furniture collection featuring handcrafted pieces by skilled artisans for premium residential and hospitality markets.", "ar": "مجموعة أثاث فاخر حصري بقطع مصنوعة يدوياً من حرفيين مهرة لخدمة الأسواق السكنية والفندقية الفاخرة." },
+          "metrics": { "clients": "80+", "revenue": "$1.8M", "satisfaction": "99%", "duration": "2021-2024" }
+        },
+        {
+          "category": "building",
+          "title": { "en": "Industrial Building Solutions", "ar": "حلول البناء الصناعي" },
+          "description": { "en": "Comprehensive industrial materials solutions offering specialized supplies for factories, warehouses, and industrial facilities across Asia.", "ar": "حلول شاملة لمواد البناء الصناعية، نوفر مواد متخصصة للمصانع والمستودعات والمنشآت الصناعية في آسيا." },
+          "metrics": { "clients": "75+", "revenue": "$2.1M", "satisfaction": "95%", "duration": "2022-2024" }
+        },
+        {
+          "category": "cosmetics",
+          "title": { "en": "Organic Beauty Products", "ar": "منتجات الجمال العضوية" },
+          "description": { "en": "Launched a luxury organic beauty line connecting natural ingredient suppliers to conscious consumers through ethical, sustainable trade.", "ar": "إطلاق خط منتجات جمال عضوية فاخرة، نربط موردي المكونات الطبيعية بالمستهلكين الواعيين من خلال تجارة أخلاقية مستدامة." },
+          "metrics": { "clients": "95+", "revenue": "$1.5M", "satisfaction": "98%", "duration": "2023-2024" }
+        }
+      ]
+    },
+    "testimonials": {
+      "enabled": true,
+      "heading": { "en": "Testimonials", "ar": "آراء العملاء" },
+      "summary": [
+        { "label": { "en": "Customer Satisfaction", "ar": "رضا العملاء" }, "value": "98%" },
+        { "label": { "en": "Completed Projects", "ar": "المشاريع المكتملة" }, "value": "500+" },
+        { "label": { "en": "Countries Served", "ar": "الدول المخدومة" }, "value": "25+" },
+        { "label": { "en": "Average Rating", "ar": "متوسط التقييم" }, "value": "5.0" }
+      ],
+      "items": [
+        {
+          "quote": { "en": "Falcons provided specialized industrial building materials meeting all safety standards. Their technical support and project management services were invaluable for our factory construction project.", "ar": "فالكونز زودتنا بمواد بناء صناعية متخصصة تلبي جميع معايير السلامة. دعمهم التقني وخدمات إدارة المشاريع كانت لا تقدر بثمن لمشروع بناء مصنعنا." },
+          "name": "Rajesh Patel",
+          "role": { "en": "Project Manager", "ar": "مدير المشروع" },
+          "company": { "en": "Industrial Solutions Co.", "ar": "شركة الحلول الصناعية" },
+          "country": { "en": "India", "ar": "الهند" },
+          "project": { "en": "Advanced Manufacturing Facility", "ar": "منشأة التصنيع المتقدمة" }
+        }
+      ]
+    },
+    "team": {
+      "enabled": true,
+      "heading": { "en": "Our Team", "ar": "الفريق" },
+      "members": [
+        {
+          "name": { "en": "Zilai Shouqi", "ar": "زيلاي شوكي" },
+          "role": { "en": "Director", "ar": "مدير" },
+          "bio": { "en": "Over 15 years of experience in business consulting and trade, leading the company with strategic vision and deep market knowledge.", "ar": "أكثر من 15 عاماً من الخبرة في الاستشارات التجارية والتجارة، يقود الشركة برؤية استراتيجية ومعرفة عميقة بالسوق." }
+        },
+        {
+          "name": { "en": "Minna Jou", "ar": "مينا جو" },
+          "role": { "en": "Marketing Assistant", "ar": "مساعد تسويق" },
+          "bio": { "en": "Specializes in client relations and marketing strategies, ensuring best service and support throughout the client journey.", "ar": "تتخصص في علاقات العملاء والاستراتيجيات التسويقية، بما يضمن أفضل خدمة ودعم طوال رحلة العميل." }
+        },
+        {
+          "name": { "en": "Saeed Saad Alghamdi", "ar": "سعيد سعد الغامدي" },
+          "role": { "en": "Trading Company Director", "ar": "مدير الشركة التجارية" },
+          "bio": { "en": "Extensive expertise in corporate management and strategic business development, overseeing international partnerships and corporate governance.", "ar": "خبرة واسعة في الإدارة المؤسسية والتطوير الاستراتيجي للأعمال، يشرف على الشراكات الدولية والحوكمة." }
+        }
+      ]
+    },
+    "cta": {
+      "enabled": true,
+      "heading": { "en": "Ready to start your project?", "ar": "هل أنت مستعد لبدء مشروعك؟" },
+      "subheading": { "en": "Let’s discuss how we can help you achieve your business goals.", "ar": "دعنا نناقش كيف نساعدك في تحقيق أهدافك التجارية بخبرتنا وشبكتنا العالمية." },
+      "cta": { "text": { "en": "Start Today", "ar": "ابدأ اليوم" }, "link": "#contact" }
+    },
     "contact": {
       "enabled": true,
-      "heading": { "en": "Contact Us", "ar": "تواصل معنا" },
-      "email": "hello@acme.com",
-      "phone": "+1 (555) 123-4567",
-      "address": { "en": "123 Market St, San Francisco, CA", "ar": "١٢٣ شارع ماركت، سان فرانسيسكو" },
+      "heading": { "en": "Contact Us", "ar": "اتصل بنا" },
+      "email": "falconsmgr@hotmail.com",
+      "phone": "+86-13710404949",
+      "address": { "en": "V- Serviced Office, Rm E21 - Hua Le Building, Hua Le Lu, Yuexiu, Guangzhou, Guangdong, China", "ar": "هوا لو لو، يوكسيو، قوانغتشو، قوانغدونغ، الصين — مكتب خدمي V، غرفة E21 - مبنى هوا لو" },
+      "hours": [
+        { "en": "Mon-Fri: 9am - 6pm", "ar": "الاثنين إلى الجمعة: 9 صباحاً - 6 مساءً" },
+        { "en": "Sat: 9am - 1pm", "ar": "السبت: 9 صباحاً - 1 ظهراً" }
+      ],
       "links": [
-        { "label": { "en": "Email Us", "ar": "راسلنا" }, "url": "mailto:hello@acme.com" },
-        { "label": { "en": "Call Us", "ar": "اتصل بنا" }, "url": "tel:+15551234567" }
+        { "label": { "en": "WhatsApp", "ar": "واتس آب" }, "url": "https://wa.me/8613710404949" },
+        { "label": { "en": "Minna (Phone)", "ar": "هاتف (مينا)" }, "url": "tel:8662061093893" },
+        { "label": { "en": "Saeed Saad (Phone)", "ar": "هاتف (سعيد سعد)" }, "url": "tel:+966500081927" },
+        { "label": { "en": "Email", "ar": "البريد" }, "url": "mailto:falconsmgr@hotmail.com" },
+        { "label": { "en": "Google Maps", "ar": "خرائط جوجل" }, "url": "https://maps.google.com" },
+        { "label": { "en": "Waze", "ar": "ويز" }, "url": "https://www.waze.com" }
       ],
       "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
     }
-  }
-  ,
-  "customBlocks": [
-    { "enabled": true, "type": "text", "position": "afterHero", "props": { "text": { "en": "Trusted by teams worldwide.", "ar": "موثوق به من فرق حول العالم." }, "align": "center" } },
-    { "enabled": true, "type": "button", "position": "afterAbout", "props": { "text": { "en": "View Portfolio", "ar": "استعرض أعمالنا" }, "link": "#services", "align": "center", "variant": "primary" } },
-    { "enabled": true, "type": "image", "position": "afterServices", "props": { "src": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&auto=format&fit=crop", "alt": { "en": "Team collaboration", "ar": "تعاون الفريق" }, "align": "center", "width": "100%", "height": "auto", "objectFit": "cover", "overlayText": { "en": "Project Spotlight", "ar": "إبراز المشروع" }, "overlayPosition": "bottom-right", "overlayBg": "rgba(0,0,0,0.40)", "overlayColor": "#ffffff", "overlayPadding": 10, "overlayRadius": 8 } }
-  ]
+  },
+  "customBlocks": []
 }
