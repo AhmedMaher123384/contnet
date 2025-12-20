@@ -745,9 +745,22 @@ export default function Dashboard() {
   // ======== وظائف التحديث ========
   const setTheme = (key, v) => { cfg.theme[key] = v; setConfig(cfg); };
   const setSiteText = (key, v) => { cfg.site[key][editLang] = v; setConfig(cfg); };
-  const setSectionEnabled = (sec, v) => { cfg.sections[sec].enabled = v; setConfig(cfg); };
-  const setSectionText = (sec, key, v) => { cfg.sections[sec][key][editLang] = v; setConfig(cfg); };
-  const setSectionColor = (sec, key, v) => { cfg.sections[sec].colors[key] = v; setConfig(cfg); };
+  const ensureSection = (sec) => {
+    cfg.sections[sec] = cfg.sections[sec] || { enabled: true, colors: {}, heading: { en: '', ar: '' } };
+  };
+  const setSectionEnabled = (sec, v) => { ensureSection(sec); cfg.sections[sec].enabled = v; setConfig(cfg); };
+  const setSectionText = (sec, key, v) => {
+    ensureSection(sec);
+    cfg.sections[sec][key] = cfg.sections[sec][key] || { en: '', ar: '' };
+    cfg.sections[sec][key][editLang] = v;
+    setConfig(cfg);
+  };
+  const setSectionColor = (sec, key, v) => {
+    ensureSection(sec);
+    cfg.sections[sec].colors = cfg.sections[sec].colors || {};
+    cfg.sections[sec].colors[key] = v;
+    setConfig(cfg);
+  };
   const setNavbarColor = (key, v) => {
     cfg.sections.navbar = cfg.sections.navbar || { enabled: true, colors: {} };
     cfg.sections.navbar.colors[key] = v;
@@ -929,13 +942,17 @@ export default function Dashboard() {
   const removeMetric = (i) => { cfg.sections.metrics.items.splice(i, 1); setConfig(cfg); };
 
   // ======== إدارة المميزات (Highlights) ========
+  const ensureHighlights = () => {
+    cfg.sections.highlights = cfg.sections.highlights || { enabled: false, heading: { en: 'Highlights', ar: 'أبرز النقاط' }, colors: {}, items: [] };
+  };
   const addHighlight = () => {
+    ensureHighlights();
     cfg.sections.highlights.items = cfg.sections.highlights.items || []
     cfg.sections.highlights.items.push({ title: { en: '', ar: '' }, description: { en: '', ar: '' } })
     setConfig(cfg)
   }
-  const updateHighlight = (i, field, v) => { cfg.sections.highlights.items[i][field][editLang] = v; setConfig(cfg); };
-  const removeHighlight = (i) => { cfg.sections.highlights.items.splice(i, 1); setConfig(cfg); };
+  const updateHighlight = (i, field, v) => { ensureHighlights(); cfg.sections.highlights.items[i][field][editLang] = v; setConfig(cfg); };
+  const removeHighlight = (i) => { ensureHighlights(); cfg.sections.highlights.items.splice(i, 1); setConfig(cfg); };
 
   // ======== إدارة مجالات العمل (Industries) ========
   const addIndustry = () => { (cfg.sections.industries.items = cfg.sections.industries.items || []).push({ title: { en: '', ar: '' }, tagline: { en: '', ar: '' } }); setConfig(cfg); };
@@ -2389,13 +2406,13 @@ export default function Dashboard() {
               </div>
 
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 20 }}>
-                <input type="checkbox" checked={cfg.sections.highlights.enabled} onChange={(e) => setSectionEnabled('highlights', e.target.checked)} id="highlights-enabled" />
+                <input type="checkbox" checked={!!(cfg.sections.highlights && cfg.sections.highlights.enabled)} onChange={(e) => setSectionEnabled('highlights', e.target.checked)} id="highlights-enabled" />
                 <label htmlFor="highlights-enabled" className="panel-desc">مفعّل</label>
               </div>
 
               <TextInput
                 label="العنوان"
-                value={cfg.sections.highlights.heading[editLang]}
+                value={(cfg.sections.highlights?.heading?.[editLang]) || ''}
                 onChange={(v) => setSectionText('highlights', 'heading', v)}
                 dir={dir}
                 placeholder={editLang === 'ar' ? 'أبرز النقاط' : 'Highlights'}
@@ -2441,10 +2458,10 @@ export default function Dashboard() {
                 <div className="panel-title">الألوان</div>
               </div>
               <div className="row-grid row-2" style={{ marginTop: 12 }}>
-                <ColorInput label="الأساسي" value={cfg.sections.highlights.colors.primary || ''} onChange={(v) => setSectionColor('highlights', 'primary', v)} />
-                <ColorInput label="الثانوي" value={cfg.sections.highlights.colors.secondary || ''} onChange={(v) => setSectionColor('highlights', 'secondary', v)} />
-                <ColorInput label="الخلفية" value={cfg.sections.highlights.colors.background || ''} onChange={(v) => setSectionColor('highlights', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.highlights.colors.text || ''} onChange={(v) => setSectionColor('highlights', 'text', v)} required />
+                <ColorInput label="الأساسي" value={cfg.sections.highlights?.colors?.primary || ''} onChange={(v) => setSectionColor('highlights', 'primary', v)} />
+                <ColorInput label="الثانوي" value={cfg.sections.highlights?.colors?.secondary || ''} onChange={(v) => setSectionColor('highlights', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={cfg.sections.highlights?.colors?.background || ''} onChange={(v) => setSectionColor('highlights', 'background', v)} />
+                <ColorInput label="النص" value={cfg.sections.highlights?.colors?.text || ''} onChange={(v) => setSectionColor('highlights', 'text', v)} required />
               </div>
             </div>
           )}
@@ -2915,7 +2932,7 @@ export default function Dashboard() {
                     if (!over || a.id === over.id) return
           const defaultOrder = ['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact']
                     const current = Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length
-                      ? cfg.site.sectionsOrder.filter((k) => defaultOrder.includes(k))
+                      ? Array.from(new Set([...cfg.site.sectionsOrder, ...defaultOrder])).filter((k) => defaultOrder.includes(k))
                       : defaultOrder
                     const oldIndex = current.indexOf(a.id)
                     const newIndex = current.indexOf(over.id)
@@ -2923,14 +2940,15 @@ export default function Dashboard() {
                     updateConfig('site.sectionsOrder', nextOrder)
                     refreshPreview()
                   }}>
-          <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? cfg.site.sectionsOrder : ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact']).filter((k) => ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact'].includes(k))} strategy={verticalListSortingStrategy}>
-                    {(['hero','metrics','about','industries','services','portfolio','testimonials','team','cta','contact']).map((key) => (
+          <SortableContext items={(Array.isArray(cfg.site?.sectionsOrder) && cfg.site.sectionsOrder.length ? Array.from(new Set([...cfg.site.sectionsOrder, ...['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact']])) : ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact']).filter((k) => ['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact'].includes(k))} strategy={verticalListSortingStrategy}>
+                    {(['hero','metrics','highlights','about','industries','services','portfolio','testimonials','team','cta','contact']).map((key) => (
                       <SectionOrderItem
                         key={key}
                         id={key}
                         label={
                           key === 'hero' ? '🖼️ الهيرو'
                           : key === 'metrics' ? '📊 المؤشرات'
+                          : key === 'highlights' ? '✨ أبرز النقاط'
                           : key === 'about' ? 'ℹ️ من نحن'
                           : key === 'industries' ? '🏭 مجالات العمل'
                           : key === 'services' ? '🛠️ الخدمات'
