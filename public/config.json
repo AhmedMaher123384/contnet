@@ -142,7 +142,8 @@
         { "title": { "en": "Furniture", "ar": "الأثاث" }, "tagline": { "en": "Trading", "ar": "تجارة" } },
         { "title": { "en": "Building Materials", "ar": "مواد البناء" }, "tagline": { "en": "Trading", "ar": "تجارة" } },
         { "title": { "en": "Cosmetics", "ar": "مستحضرات التجميل" }, "tagline": { "en": "Trading", "ar": "تجارة" } }
-      ]
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "portfolio": {
       "enabled": true,
@@ -190,7 +191,8 @@
           "description": { "en": "Launched a luxury organic beauty line connecting natural ingredient suppliers to conscious consumers through ethical, sustainable trade.", "ar": "إطلاق خط منتجات جمال عضوية فاخرة، نربط موردي المكونات الطبيعية بالمستهلكين الواعيين من خلال تجارة أخلاقية مستدامة." },
           "metrics": { "clients": "95+", "revenue": "$1.5M", "satisfaction": "98%", "duration": "2023-2024" }
         }
-      ]
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "testimonials": {
       "enabled": true,
@@ -210,7 +212,8 @@
           "country": { "en": "India", "ar": "الهند" },
           "project": { "en": "Advanced Manufacturing Facility", "ar": "منشأة التصنيع المتقدمة" }
         }
-      ]
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "team": {
       "enabled": true,
@@ -231,24 +234,24 @@
           "role": { "en": "Trading Company Director", "ar": "مدير الشركة التجارية" },
           "bio": { "en": "Extensive expertise in corporate management and strategic business development, overseeing international partnerships and corporate governance.", "ar": "خبرة واسعة في الإدارة المؤسسية والتطوير الاستراتيجي للأعمال، يشرف على الشراكات الدولية والحوكمة." }
         }
-      ]
+      ],
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "cta": {
       "enabled": true,
       "heading": { "en": "Ready to start your project?", "ar": "هل أنت مستعد لبدء مشروعك؟" },
       "subheading": { "en": "Let’s discuss how we can help you achieve your business goals.", "ar": "دعنا نناقش كيف نساعدك في تحقيق أهدافك التجارية بخبرتنا وشبكتنا العالمية." },
-      "cta": { "text": { "en": "Start Today", "ar": "ابدأ اليوم" }, "link": "#contact" }
+      "cta": { "text": { "en": "Start Today", "ar": "ابدأ اليوم" }, "link": "#contact" },
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "contact": {
       "enabled": true,
       "heading": { "en": "Contact Us", "ar": "اتصل بنا" },
+      "subheading": { "en": "Reach us directly by email, phone, or WhatsApp.", "ar": "تواصل معنا مباشرة عبر البريد أو الهاتف أو واتساب." },
       "email": "falconsmgr@hotmail.com",
       "phone": "+86-13710404949",
       "address": { "en": "V- Serviced Office, Rm E21 - Hua Le Building, Hua Le Lu, Yuexiu, Guangzhou, Guangdong, China", "ar": "هوا لو لو، يوكسيو، قوانغتشو، قوانغدونغ، الصين — مكتب خدمي V، غرفة E21 - مبنى هوا لو" },
-      "hours": [
-        { "en": "Mon-Fri: 9am - 6pm", "ar": "الاثنين إلى الجمعة: 9 صباحاً - 6 مساءً" },
-        { "en": "Sat: 9am - 1pm", "ar": "السبت: 9 صباحاً - 1 ظهراً" }
-      ],
+      "hours": { "en": "Mon–Fri: 9am–6pm · Sat: 9am–1pm", "ar": "الاثنين–الجمعة: 9 صباحاً–6 مساءً · السبت: 9 صباحاً–1 ظهراً" },
       "links": [
         { "label": { "en": "WhatsApp", "ar": "واتس آب" }, "url": "https://wa.me/8613710404949" },
         { "label": { "en": "Minna (Phone)", "ar": "هاتف (مينا)" }, "url": "tel:8662061093893" },
@@ -257,7 +260,7 @@
         { "label": { "en": "Google Maps", "ar": "خرائط جوجل" }, "url": "https://maps.google.com" },
         { "label": { "en": "Waze", "ar": "ويز" }, "url": "https://www.waze.com" }
       ],
-      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     }
   },
   "customBlocks": []

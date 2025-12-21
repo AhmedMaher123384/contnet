@@ -761,7 +761,11 @@ export default function Dashboard() {
   const setSectionEnabled = (sec, v) => { ensureSection(sec); cfg.sections[sec].enabled = v; setConfig(cfg); };
   const setSectionText = (sec, key, v) => {
     ensureSection(sec);
-    cfg.sections[sec][key] = cfg.sections[sec][key] || { en: '', ar: '' };
+    const cur = cfg.sections[sec][key];
+    const isBilingualObj = cur && typeof cur === 'object' && !Array.isArray(cur) && (('en' in cur) || ('ar' in cur));
+    if (!isBilingualObj) {
+      cfg.sections[sec][key] = { en: '', ar: '' };
+    }
     cfg.sections[sec][key][editLang] = v;
     setConfig(cfg);
   };
@@ -2611,6 +2615,17 @@ export default function Dashboard() {
 
               <TextInput label="العنوان" value={cfg.sections.industries.heading[editLang]} onChange={(v) => setSectionText('industries', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'مجالات عملنا' : 'Our Work Areas'} required />
 
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={(cfg.sections.industries.colors?.primary || '')} onChange={(v) => setSectionColor('industries', 'primary', v)} />
+                <ColorInput label="الثانوي" value={(cfg.sections.industries.colors?.secondary || '')} onChange={(v) => setSectionColor('industries', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={(cfg.sections.industries.colors?.background || '')} onChange={(v) => setSectionColor('industries', 'background', v)} />
+                <ColorInput label="النص" value={(cfg.sections.industries.colors?.body || cfg.sections.industries.colors?.text || '')} onChange={(v) => setSectionColor('industries', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.industries.colors?.heading || '')} onChange={(v) => setSectionColor('industries', 'heading', v)} />
+              </div>
+
               <div className="row-grid" style={{ marginTop: 12 }}>
                 {(() => {
                   const items = (cfg.sections.industries.items || []).map((item, i) => ({ item, i }));
@@ -2649,6 +2664,17 @@ export default function Dashboard() {
               </div>
 
               <TextInput label="العنوان" value={cfg.sections.portfolio.heading[editLang]} onChange={(v) => setSectionText('portfolio', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سابقة الأعمال' : 'Portfolio'} required />
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={(cfg.sections.portfolio.colors?.primary || '')} onChange={(v) => setSectionColor('portfolio', 'primary', v)} />
+                <ColorInput label="الثانوي" value={(cfg.sections.portfolio.colors?.secondary || '')} onChange={(v) => setSectionColor('portfolio', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={(cfg.sections.portfolio.colors?.background || '')} onChange={(v) => setSectionColor('portfolio', 'background', v)} />
+                <ColorInput label="النص" value={(cfg.sections.portfolio.colors?.body || cfg.sections.portfolio.colors?.text || '')} onChange={(v) => setSectionColor('portfolio', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.portfolio.colors?.heading || '')} onChange={(v) => setSectionColor('portfolio', 'heading', v)} />
+              </div>
 
               <div className="panel-header" style={{ marginTop: 20 }}>
                 <div className="panel-title">الفلاتر <span className="badge">{(cfg.sections.portfolio.filters || []).length}</span></div>
@@ -2722,6 +2748,17 @@ export default function Dashboard() {
               <TextInput label="العنوان" value={cfg.sections.testimonials.heading[editLang]} onChange={(v) => setSectionText('testimonials', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'آراء العملاء' : 'Testimonials'} required />
 
               <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={(cfg.sections.testimonials.colors?.primary || '')} onChange={(v) => setSectionColor('testimonials', 'primary', v)} />
+                <ColorInput label="الثانوي" value={(cfg.sections.testimonials.colors?.secondary || '')} onChange={(v) => setSectionColor('testimonials', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={(cfg.sections.testimonials.colors?.background || '')} onChange={(v) => setSectionColor('testimonials', 'background', v)} />
+                <ColorInput label="النص" value={(cfg.sections.testimonials.colors?.body || cfg.sections.testimonials.colors?.text || '')} onChange={(v) => setSectionColor('testimonials', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.testimonials.colors?.heading || '')} onChange={(v) => setSectionColor('testimonials', 'heading', v)} />
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
                 <div className="panel-title">ملخص القسم <span className="badge">{(cfg.sections.testimonials.summary || []).length}</span></div>
                 <button className="btn btn-outline" onClick={addSummary}>إضافة سطر</button>
               </div>
@@ -2791,6 +2828,17 @@ export default function Dashboard() {
 
               <TextInput label="العنوان" value={cfg.sections.team.heading[editLang]} onChange={(v) => setSectionText('team', 'heading', v)} dir={dir} placeholder={editLang === 'ar' ? 'الفريق' : 'Our Team'} required />
 
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={(cfg.sections.team.colors?.primary || '')} onChange={(v) => setSectionColor('team', 'primary', v)} />
+                <ColorInput label="الثانوي" value={(cfg.sections.team.colors?.secondary || '')} onChange={(v) => setSectionColor('team', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={(cfg.sections.team.colors?.background || '')} onChange={(v) => setSectionColor('team', 'background', v)} />
+                <ColorInput label="النص" value={(cfg.sections.team.colors?.body || cfg.sections.team.colors?.text || '')} onChange={(v) => setSectionColor('team', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.team.colors?.heading || '')} onChange={(v) => setSectionColor('team', 'heading', v)} />
+              </div>
+
               <div className="row-grid" style={{ marginTop: 12 }}>
                 {(() => {
                   const items = (cfg.sections.team.members || []).map((m, i) => ({ m, i }));
@@ -2829,6 +2877,17 @@ export default function Dashboard() {
                 <TextArea label="وصف موجز" value={cfg.sections.cta.subheading[editLang]} onChange={(v) => setSectionText('cta', 'subheading', v)} dir={dir} placeholder={editLang === 'ar' ? 'سطر تمهيدي' : 'Lead-in text'} rows={2} />
                 <TextInput label="نص الزر" value={cfg.sections.cta.cta.text[editLang]} onChange={(v) => setCTAButtonText(v)} dir={dir} placeholder={editLang === 'ar' ? 'ابدأ اليوم' : 'Start Today'} required />
                 <URLInput label="رابط الزر" value={cfg.sections.cta.cta.link || ''} onChange={(v) => setCTAButtonLink(v)} placeholder="#contact أو https://..." required />
+              </div>
+
+              <div className="panel-header" style={{ marginTop: 20 }}>
+                <div className="panel-title">الألوان</div>
+              </div>
+              <div className="row-grid row-2" style={{ marginTop: 12 }}>
+                <ColorInput label="الأساسي" value={(cfg.sections.cta.colors?.primary || '')} onChange={(v) => setSectionColor('cta', 'primary', v)} />
+                <ColorInput label="الثانوي" value={(cfg.sections.cta.colors?.secondary || '')} onChange={(v) => setSectionColor('cta', 'secondary', v)} />
+                <ColorInput label="الخلفية" value={(cfg.sections.cta.colors?.background || '')} onChange={(v) => setSectionColor('cta', 'background', v)} />
+                <ColorInput label="النص" value={(cfg.sections.cta.colors?.body || cfg.sections.cta.colors?.text || '')} onChange={(v) => setSectionColor('cta', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.cta.colors?.heading || '')} onChange={(v) => setSectionColor('cta', 'heading', v)} />
               </div>
             </div>
           )}
@@ -2872,6 +2931,14 @@ export default function Dashboard() {
                   placeholder={editLang === 'ar' ? 'تواصل معنا' : 'Contact Us'}
                   required
                 />
+                <TextArea
+                  label="وصف موجز"
+                  value={(cfg.sections.contact.subheading?.[editLang] || '')}
+                  onChange={(v) => setSectionText('contact', 'subheading', v)}
+                  dir={dir}
+                  placeholder={editLang === 'ar' ? 'سطر يوضح كيف نتواصل معك' : 'Short line about how we help'}
+                  rows={2}
+                />
                 <TextInput
                   label="البريد"
                   value={cfg.sections.contact.email || ''}
@@ -2893,6 +2960,13 @@ export default function Dashboard() {
                   onChange={(v) => { cfg.sections.contact.address[editLang] = v; setConfig(cfg); }}
                   dir={dir}
                   placeholder={editLang === 'ar' ? 'اكتب العنوان' : 'Write address'}
+                />
+                <TextInput
+                  label="ساعات العمل"
+                  value={(cfg.sections.contact.hours?.[editLang] || '')}
+                  onChange={(v) => setSectionText('contact', 'hours', v)}
+                  dir={dir}
+                  placeholder={editLang === 'ar' ? 'الاثنين-الجمعة 9 ص إلى 6 م' : 'Mon–Fri 9am–6pm, Sat 9am–1pm'}
                 />
               </div>
 
@@ -2951,7 +3025,8 @@ export default function Dashboard() {
                 <ColorInput label="الأساسي" value={cfg.sections.contact.colors.primary || ''} onChange={(v) => setSectionColor('contact', 'primary', v)} />
                 <ColorInput label="الثانوي" value={cfg.sections.contact.colors.secondary || ''} onChange={(v) => setSectionColor('contact', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.contact.colors.background || ''} onChange={(v) => setSectionColor('contact', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.contact.colors.text || ''} onChange={(v) => setSectionColor('contact', 'text', v)} required />
+                <ColorInput label="النص" value={(cfg.sections.contact.colors.body || cfg.sections.contact.colors.text || '')} onChange={(v) => setSectionColor('contact', 'body', v)} required />
+                <ColorInput label="العنوان" value={(cfg.sections.contact.colors.heading || '')} onChange={(v) => setSectionColor('contact', 'heading', v)} />
               </div>
             </div>
           )}

@@ -21,6 +21,32 @@ function deepMerge(base, override) {
   return out
 }
 
+// Normalize legacy shapes to the latest schema
+function migrateConfig(cfg) {
+  try {
+    const sections = cfg.sections || {}
+    const contact = sections.contact || null
+    if (contact) {
+      // Convert hours: array -> bilingual text object
+      if (Array.isArray(contact.hours)) {
+        const en = contact.hours.map(x => (typeof x === 'string' ? x : (x?.en || ''))).filter(Boolean).join(', ')
+        const ar = contact.hours.map(x => (typeof x === 'string' ? x : (x?.ar || ''))).filter(Boolean).join('، ')
+        contact.hours = { en, ar }
+      } else if (typeof contact.hours === 'string') {
+        contact.hours = { en: contact.hours, ar: contact.hours }
+      }
+      // Ensure subheading exists and is bilingual
+      if (!contact.subheading || typeof contact.subheading !== 'object' || Array.isArray(contact.subheading)) {
+        const v = typeof contact.subheading === 'string' ? contact.subheading : ''
+        contact.subheading = { en: v, ar: v }
+      }
+      sections.contact = contact
+      cfg.sections = sections
+    }
+  } catch {}
+  return cfg
+}
+
 export async function loadConfig() {
   // اقرأ القيم الافتراضية دومًا لضمان إدراج الحقول الجديدة (مثل cloudinary)
   let base = {}
@@ -56,7 +82,8 @@ export async function loadConfig() {
     }
   } catch {}
 
-  return merged
+  // Apply migrations so admin always sees the latest shapes
+  return migrateConfig(merged)
 }
 
 export function saveConfig(cfg) {
