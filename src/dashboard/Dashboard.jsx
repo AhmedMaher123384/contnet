@@ -697,7 +697,7 @@ const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLab
         <TextInput
           label="الاسم"
           value={link.label?.[editLang] || ''}
-          onChange={(e) => updateFooterLinkLabel(i, j, e.target.value)}
+          onChange={(v) => updateFooterLinkLabel(i, j, v)}
           dir={dir}
           placeholder={editLang === 'ar' ? 'اسم الرابط' : 'Link label'}
           required
@@ -705,7 +705,7 @@ const FooterLinkSortable = ({ id, link, i, j, editLang, dir, updateFooterLinkLab
         <URLInput
           label="الرابط"
           value={link.href || ''}
-          onChange={(e) => updateFooterLinkHref(i, j, e.target.value)}
+          onChange={(v) => updateFooterLinkHref(i, j, v)}
           placeholder="# أو https://..."
           required
         />
@@ -723,6 +723,9 @@ export default function Dashboard() {
   const { config, setConfig, updateConfig, t, lang, setLang, saveToBrowser, lastSavedAt, unsaved } = useConfig();
   const [editLang, setEditLang] = useState('ar');
   const [active, setActive] = useState('theme');
+  const [activeGroup, setActiveGroup] = useState('appearance'); // appearance | main | others
+  const [appearanceSub, setAppearanceSub] = useState('colors'); // colors | fonts
+  const [mainSub, setMainSub] = useState('navbar'); // navbar | hero | footer | layout
   const [livePreview, setLivePreview] = useState(false);
   const [showPreview, setShowPreview] = useState(window.innerWidth > 768); // default hidden on mobile
   const [svcFilter, setSvcFilter] = useState('');
@@ -777,6 +780,52 @@ export default function Dashboard() {
     cfg.sections.footer = cfg.sections.footer || { enabled: true, colors: {} };
     cfg.sections.footer.colors[key] = v;
     setConfig(cfg);
+  };
+
+  // تسميات عربية/إنجليزية للأقسام بدون أيقونات
+  const LABELS = {
+    ar: {
+      general: 'الإعدادات العامة',
+      branding: 'العلامة التجارية',
+      navbar: 'النافبار',
+      theme: 'المظهر',
+      hero: 'الهيرو',
+      about: 'من نحن',
+      services: 'الخدمات',
+      metrics: 'المؤشرات',
+      highlights: 'أبرز النقاط',
+      industries: 'مجالات العمل',
+      portfolio: 'سابقة الأعمال',
+      testimonials: 'آراء العملاء',
+      team: 'الفريق',
+      cta: 'دعوة للإجراء',
+      contact: 'التواصل',
+      footer: 'الفوتر',
+      custom: 'مخصص',
+      layout: 'ترتيب الأقسام',
+      data: 'البيانات',
+    },
+    en: {
+      general: 'General Settings',
+      branding: 'Branding',
+      navbar: 'Navbar',
+      theme: 'Appearance',
+      hero: 'Hero',
+      about: 'About',
+      services: 'Services',
+      metrics: 'Metrics',
+      highlights: 'Highlights',
+      industries: 'Industries',
+      portfolio: 'Portfolio',
+      testimonials: 'Testimonials',
+      team: 'Team',
+      cta: 'CTA',
+      contact: 'Contact',
+      footer: 'Footer',
+      custom: 'Custom',
+      layout: 'Sections Order',
+      data: 'Data',
+    }
   };
   const setHeroCTA = (key, v) => { cfg.sections.hero.cta[key][editLang] = v; setConfig(cfg); };
   const setAboutImage = (v) => { cfg.sections.about.image = v; setConfig(cfg); };
@@ -1164,19 +1213,15 @@ export default function Dashboard() {
     cfg.theme.text = cfg.theme.text || '';
   } catch {}
 
-  const activeLabel = {
-    general: 'الإعدادات العامة',
-    branding: 'العلامة التجارية',
-    navbar: 'روابط النافبار',
-    theme: 'الألوان',
-    hero: 'الهيرو',
-    about: 'من نحن',
-    services: 'الخدمات',
-    contact: 'التواصل',
-    footer: 'الفوتر',
-    custom: 'محتوى مخصص',
-    data: 'البيانات',
-  }[active] || 'لوحة التحكم';
+  const activeLabel = (() => {
+    if (active === 'theme') {
+      return appearanceSub === 'fonts'
+        ? (editLang === 'ar' ? 'خطوط الثيم' : 'Theme Fonts')
+        : (editLang === 'ar' ? 'ألوان الثيم' : 'Theme Colors');
+    }
+    const label = LABELS[editLang]?.[active];
+    return label || (editLang === 'ar' ? 'لوحة التحكم' : 'Dashboard');
+  })();
 
   return (
     <>
@@ -1730,68 +1775,79 @@ export default function Dashboard() {
             <div className="dashboard-logo">لوحة التحكم</div>
           </div>
           <nav className="dashboard-nav">
-            <div className="nav-section">الإعدادات</div>
-            <button
-              className={`nav-item ${active === 'general' ? 'active' : ''}`}
-              onClick={() => { setActive('general'); setMobileMenuOpen(false); }}
-            >
-              ⚙️ الإعدادات العامة
-            </button>
-            <button
-              className={`nav-item ${active === 'branding' ? 'active' : ''}`}
-              onClick={() => { setActive('branding'); setMobileMenuOpen(false); }}
-            >
-              🏷️ العلامة التجارية
-            </button>
-            <button
-              className={`nav-item ${active === 'navbar' ? 'active' : ''}`}
-              onClick={() => { setActive('navbar'); setMobileMenuOpen(false); }}
-            >
-              🔗 روابط النافبار
-            </button>
-            <div className="nav-section">المظهر</div>
-            <button
-              className={`nav-item ${active === 'theme' ? 'active' : ''}`}
-              onClick={() => { setActive('theme'); setMobileMenuOpen(false); }}
-            >
-              🎨 ألوان الثيم
-            </button>
-
-            <div className="nav-section">الأقسام</div>
-            <button
-              className={`nav-item ${active === 'layout' ? 'active' : ''}`}
-              onClick={() => { setActive('layout'); setMobileMenuOpen(false); }}
-            >
-              📐 ترتيب الأقسام
-            </button>
-{['hero', 'metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact', 'footer', 'custom'].map((key) => (
+            <div className="nav-section">{editLang === 'ar' ? 'التبويبات' : 'Tabs'}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
               <button
-                key={key}
-                className={`nav-item ${active === key ? 'active' : ''}`}
-                onClick={() => { setActive(key); setMobileMenuOpen(false); }}
+                className={`nav-item ${activeGroup === 'appearance' ? 'active' : ''}`}
+                onClick={() => { setActiveGroup('appearance'); setMobileMenuOpen(false); setActive('theme'); }}
               >
-                {key === 'hero' && '🖼️ الهيرو'}
-                {key === 'metrics' && '📊 المؤشرات'}
-                {key === 'highlights' && '✨ أبرز النقاط'}
-                {key === 'about' && 'ℹ️ من نحن'}
-                {key === 'industries' && '🏭 مجالات العمل'}
-                {key === 'services' && '🛠️ الخدمات'}
-                {key === 'portfolio' && '🗂️ سابقة الأعمال'}
-                {key === 'testimonials' && '💬 آراء العملاء'}
-                {key === 'team' && '👥 الفريق'}
-                {key === 'cta' && '🚀 دعوة للإجراء'}
-                {key === 'contact' && '📞 التواصل'}
-                {key === 'footer' && '🔻 الفوتر'}
-                {key === 'custom' && '🧩 مخصص'}
+                {editLang === 'ar' ? 'المظهر' : 'Appearance'}
               </button>
-            ))}
+              <button
+                className={`nav-item ${activeGroup === 'main' ? 'active' : ''}`}
+                onClick={() => { setActiveGroup('main'); setMobileMenuOpen(false); setActive(mainSub); }}
+              >
+                {editLang === 'ar' ? 'الأقسام الرئيسية' : 'Main Sections'}
+              </button>
+              <button
+                className={`nav-item ${activeGroup === 'others' ? 'active' : ''}`}
+                onClick={() => { setActiveGroup('others'); setMobileMenuOpen(false); }}
+              >
+                {editLang === 'ar' ? 'باقي الأقسام' : 'Other Sections'}
+              </button>
+            </div>
 
-            <div className="nav-section">البيانات</div>
+            {activeGroup === 'appearance' && (
+              <>
+                <div className="nav-section">{editLang === 'ar' ? 'المظهر' : 'Appearance'}</div>
+                <button
+                  className={`nav-item ${appearanceSub === 'colors' ? 'active' : ''}`}
+                  onClick={() => { setAppearanceSub('colors'); setActive('theme'); setMobileMenuOpen(false); }}
+                >
+                  {editLang === 'ar' ? 'ألوان الثيم' : 'Theme Colors'}
+                </button>
+                <button
+                  className={`nav-item ${appearanceSub === 'fonts' ? 'active' : ''}`}
+                  onClick={() => { setAppearanceSub('fonts'); setActive('theme'); setMobileMenuOpen(false); }}
+                >
+                  {editLang === 'ar' ? 'خطوط الثيم' : 'Theme Fonts'}
+                </button>
+              </>
+            )}
+
+            {activeGroup === 'main' && (
+              <>
+                <div className="nav-section">{editLang === 'ar' ? 'الأقسام الرئيسية' : 'Main Sections'}</div>
+                <button className={`nav-item ${active === 'general' ? 'active' : ''}`} onClick={() => { setMainSub('general'); setActive('general'); setMobileMenuOpen(false); }}>{LABELS[editLang]?.general}</button>
+                <button className={`nav-item ${active === 'branding' ? 'active' : ''}`} onClick={() => { setMainSub('branding'); setActive('branding'); setMobileMenuOpen(false); }}>{LABELS[editLang]?.branding}</button>
+                <button className={`nav-item ${active === 'navbar' ? 'active' : ''}`} onClick={() => { setMainSub('navbar'); setActive('navbar'); setMobileMenuOpen(false); }}>{editLang === 'ar' ? 'النافبار' : 'Navbar'}</button>
+                <button className={`nav-item ${active === 'hero' ? 'active' : ''}`} onClick={() => { setMainSub('hero'); setActive('hero'); setMobileMenuOpen(false); }}>{editLang === 'ar' ? 'الهيرو' : 'Hero'}</button>
+                <button className={`nav-item ${active === 'footer' ? 'active' : ''}`} onClick={() => { setMainSub('footer'); setActive('footer'); setMobileMenuOpen(false); }}>{editLang === 'ar' ? 'الفوتر' : 'Footer'}</button>
+                <button className={`nav-item ${active === 'layout' ? 'active' : ''}`} onClick={() => { setMainSub('layout'); setActive('layout'); setMobileMenuOpen(false); }}>{editLang === 'ar' ? 'ترتيب الأقسام' : 'Sections Order'}</button>
+              </>
+            )}
+
+            {activeGroup === 'others' && (
+              <>
+                <div className="nav-section">{editLang === 'ar' ? 'باقي الأقسام' : 'Other Sections'}</div>
+                {['metrics', 'highlights', 'about', 'industries', 'services', 'portfolio', 'testimonials', 'team', 'cta', 'contact', 'custom'].map((key) => (
+                  <button
+                    key={key}
+                    className={`nav-item ${active === key ? 'active' : ''}`}
+                    onClick={() => { setActive(key); setMobileMenuOpen(false); }}
+                  >
+                    {LABELS[editLang]?.[key] || key}
+                  </button>
+                ))}
+              </>
+            )}
+
+            <div className="nav-section">{editLang === 'ar' ? 'البيانات' : 'Data'}</div>
             <button
               className={`nav-item ${active === 'data' ? 'active' : ''}`}
               onClick={() => { setActive('data'); setMobileMenuOpen(false); }}
             >
-              💾 حفظ / تصدير
+              {editLang === 'ar' ? 'حفظ / تصدير' : 'Save / Export'}
             </button>
           </nav>
 
@@ -1900,11 +1956,11 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Navbar Links Tab */}
+          {/* Navbar Tab */}
           {active === 'navbar' && (
             <div className="panel">
               <div className="panel-header">
-                <div className="panel-title">روابط النافبار <span className="badge">{(cfg.site.menu || []).length}</span></div>
+                <div className="panel-title">{editLang === 'ar' ? 'النافبار' : 'Navbar'} <span className="badge">{(cfg.site.menu || []).length}</span></div>
                 <button className="btn btn-outline" onClick={addNavLink}>إضافة رابط</button>
               </div>
               <div className="row-grid" style={{ marginTop: 12 }}>
@@ -1941,98 +1997,104 @@ export default function Dashboard() {
           {/* Theme Panel */}
           {active === 'theme' && (
             <>
-              <div className="panel">
-                <div className="panel-header">
-                  <div className="panel-title">ألوان الثيم</div>
-                  <div className="panel-desc">ألوان عامة تؤثر على الموقع</div>
-                </div>
-                <div className="row-grid row-2">
-                  <ColorInput label="الأساسي" value={cfg.theme.primary} onChange={(v) => setTheme('primary', v)} required />
-                  <ColorInput label="الثانوي" value={cfg.theme.secondary} onChange={(v) => setTheme('secondary', v)} />
-                  <ColorInput label="الخلفية" value={cfg.theme.background} onChange={(v) => setTheme('background', v)} />
-                  <ColorInput label="النص" value={cfg.theme.text} onChange={(v) => setTheme('text', v)} required />
-                </div>
-              </div>
-
-              <div className="panel">
-                <div className="panel-header">
-                  <div className="panel-title">ألوان الهيدر والفوتر</div>
-                  <div className="panel-desc">تحكم مستقل في ألوان النافبار والفوتر</div>
-                </div>
-                <div className="row-grid row-2" style={{ marginTop: 16 }}>
-                  <ColorInput label="خلفية الهيدر" value={(cfg.sections.navbar?.colors || {}).background || ''} onChange={(v) => setNavbarColor('background', v)} />
-                  <ColorInput label="نص الهيدر" value={(cfg.sections.navbar?.colors || {}).text || ''} onChange={(v) => setNavbarColor('text', v)} required />
-                  <ColorInput label="خلفية الفوتر" value={(cfg.sections.footer?.colors || {}).background || ''} onChange={(v) => setFooterColor('background', v)} />
-                  <ColorInput label="نص الفوتر" value={(cfg.sections.footer?.colors || {}).text || ''} onChange={(v) => setFooterColor('text', v)} required />
-                </div>
-              </div>
-
-              <div className="panel">
-                <div className="panel-header">
-                  <div className="panel-title">الخطوط</div>
-                  <div className="panel-desc">تحكم احترافي في نوع الخط للنص والعناوين، مع إمكانية تحميل خط خارجي</div>
-                </div>
-                <div className="row-grid row-2" style={{ marginTop: 8 }}>
-                  <div className="form-group">
-                    <label>اختر خط النص</label>
-                    <select className="input" value={selectedTextId} onChange={(e) => onSelectFont('fontFamily', e.target.value)}>
-                      <optgroup label="خطوط عربية">
-                        {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
-                          <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="خطوط لاتينية">
-                        {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
-                          <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
-                        ))}
-                      </optgroup>
-                    </select>
+              {appearanceSub === 'colors' && (
+                <>
+                  <div className="panel">
+                    <div className="panel-header">
+                      <div className="panel-title">{editLang === 'ar' ? 'ألوان الثيم' : 'Theme Colors'}</div>
+                      <div className="panel-desc">{editLang === 'ar' ? 'ألوان عامة تؤثر على الموقع' : 'Global colors affecting the site'}</div>
+                    </div>
+                    <div className="row-grid row-2">
+                      <ColorInput label={editLang === 'ar' ? 'الأساسي' : 'Primary'} value={cfg.theme.primary} onChange={(v) => setTheme('primary', v)} required />
+                      <ColorInput label={editLang === 'ar' ? 'الثانوي' : 'Secondary'} value={cfg.theme.secondary} onChange={(v) => setTheme('secondary', v)} />
+                      <ColorInput label={editLang === 'ar' ? 'الخلفية' : 'Background'} value={cfg.theme.background} onChange={(v) => setTheme('background', v)} />
+                      <ColorInput label={editLang === 'ar' ? 'النص' : 'Text'} value={cfg.theme.text} onChange={(v) => setTheme('text', v)} required />
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label>اختر خط العناوين</label>
-                    <select className="input" value={selectedHeadingId} onChange={(e) => onSelectFont('headingFamily', e.target.value)}>
-                      <optgroup label="خطوط عربية">
-                        {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
-                          <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="خطوط لاتينية">
-                        {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
-                          <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
-                        ))}
-                      </optgroup>
-                    </select>
+
+                  <div className="panel">
+                    <div className="panel-header">
+                      <div className="panel-title">{editLang === 'ar' ? 'ألوان الهيدر والفوتر' : 'Header & Footer Colors'}</div>
+                      <div className="panel-desc">{editLang === 'ar' ? 'تحكم مستقل في ألوان النافبار والفوتر' : 'Independent control for navbar and footer colors'}</div>
+                    </div>
+                    <div className="row-grid row-2" style={{ marginTop: 16 }}>
+                      <ColorInput label={editLang === 'ar' ? 'خلفية الهيدر' : 'Navbar Background'} value={(cfg.sections.navbar?.colors || {}).background || ''} onChange={(v) => setNavbarColor('background', v)} />
+                      <ColorInput label={editLang === 'ar' ? 'نص الهيدر' : 'Navbar Text'} value={(cfg.sections.navbar?.colors || {}).text || ''} onChange={(v) => setNavbarColor('text', v)} required />
+                      <ColorInput label={editLang === 'ar' ? 'خلفية الفوتر' : 'Footer Background'} value={(cfg.sections.footer?.colors || {}).background || ''} onChange={(v) => setFooterColor('background', v)} />
+                      <ColorInput label={editLang === 'ar' ? 'نص الفوتر' : 'Footer Text'} value={(cfg.sections.footer?.colors || {}).text || ''} onChange={(v) => setFooterColor('text', v)} required />
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {appearanceSub === 'fonts' && (
+                <div className="panel">
+                  <div className="panel-header">
+                    <div className="panel-title">{editLang === 'ar' ? 'خطوط الثيم' : 'Theme Fonts'}</div>
+                    <div className="panel-desc">{editLang === 'ar' ? 'تحكم احترافي في نوع الخط للنص والعناوين، مع إمكانية تحميل خط خارجي' : 'Advanced control over text and heading fonts; optional external CSS font URL'}</div>
+                  </div>
+                  <div className="row-grid row-2" style={{ marginTop: 8 }}>
+                    <div className="form-group">
+                      <label>{editLang === 'ar' ? 'اختر خط النص' : 'Select text font'}</label>
+                      <select className="input" value={selectedTextId} onChange={(e) => onSelectFont('fontFamily', e.target.value)}>
+                        <optgroup label={editLang === 'ar' ? 'خطوط عربية' : 'Arabic fonts'}>
+                          {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
+                            <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label={editLang === 'ar' ? 'خطوط لاتينية' : 'Latin fonts'}>
+                          {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
+                            <option key={`text-${o.id}`} value={o.id}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label>{editLang === 'ar' ? 'اختر خط العناوين' : 'Select heading font'}</label>
+                      <select className="input" value={selectedHeadingId} onChange={(e) => onSelectFont('headingFamily', e.target.value)}>
+                        <optgroup label={editLang === 'ar' ? 'خطوط عربية' : 'Arabic fonts'}>
+                          {FONT_OPTIONS.filter(o => o.category === 'arabic').map(o => (
+                            <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label={editLang === 'ar' ? 'خطوط لاتينية' : 'Latin fonts'}>
+                          {FONT_OPTIONS.filter(o => o.category === 'latin').map(o => (
+                            <option key={`heading-${o.id}`} value={o.id}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-grid">
+                    <TextInput
+                      label={editLang === 'ar' ? 'خط النص' : 'Text font family'}
+                      value={(cfg.theme.typography?.fontFamily || '')}
+                      onChange={(v) => setTypography('fontFamily', v)}
+                      dir={dir}
+                      placeholder={editLang === 'ar' ? 'مثال: Cairo, system-ui' : 'e.g., Inter, system-ui'}
+                    />
+                    <TextInput
+                      label={editLang === 'ar' ? 'خط العناوين' : 'Heading font family'}
+                      value={(cfg.theme.typography?.headingFamily || '')}
+                      onChange={(v) => setTypography('headingFamily', v)}
+                      dir={dir}
+                      placeholder={editLang === 'ar' ? 'مثال: Cairo, serif' : 'e.g., Inter, serif'}
+                    />
+                    <URLInput
+                      label={editLang === 'ar' ? 'رابط CSS للخط (اختياري)' : 'Font CSS URL (optional)'}
+                      value={(cfg.theme.typography?.fontUrl || '')}
+                      onChange={(v) => setTypography('fontUrl', v)}
+                      placeholder={editLang === 'ar' ? 'https://fonts.googleapis.com/css2?...' : 'https://fonts.googleapis.com/css2?...'}
+                      dir="ltr"
+                    />
+                  </div>
+                  <div className="panel-desc" style={{ marginTop: 8 }}>
+                    {editLang === 'ar'
+                      ? 'اكتب أسماء العائلات مفصولة بفواصل. في حال إضافة رابط CSS سيتم تحميل الخط تلقائيًا.'
+                      : 'Write font families comma-separated. If a CSS URL is provided, the font will be loaded automatically.'}
                   </div>
                 </div>
-                <div className="form-grid">
-                  <TextInput
-                    label="خط النص"
-                    value={(cfg.theme.typography?.fontFamily || '')}
-                    onChange={(v) => setTypography('fontFamily', v)}
-                    dir={dir}
-                    placeholder={editLang === 'ar' ? 'مثال: Cairo, system-ui' : 'e.g., Inter, system-ui'}
-                  />
-                  <TextInput
-                    label="خط العناوين"
-                    value={(cfg.theme.typography?.headingFamily || '')}
-                    onChange={(v) => setTypography('headingFamily', v)}
-                    dir={dir}
-                    placeholder={editLang === 'ar' ? 'مثال: Cairo, serif' : 'e.g., Inter, serif'}
-                  />
-                  <URLInput
-                    label={editLang === 'ar' ? 'رابط CSS للخط (اختياري)' : 'Font CSS URL (optional)'}
-                    value={(cfg.theme.typography?.fontUrl || '')}
-                    onChange={(v) => setTypography('fontUrl', v)}
-                    placeholder={editLang === 'ar' ? 'https://fonts.googleapis.com/css2?...' : 'https://fonts.googleapis.com/css2?...'}
-                    dir="ltr"
-                  />
-                </div>
-                <div className="panel-desc" style={{ marginTop: 8 }}>
-                  {editLang === 'ar'
-                    ? 'اكتب أسماء العائلات مفصولة بفواصل. في حال إضافة رابط CSS سيتم تحميل الخط تلقائيًا.'
-                    : 'Write font families comma-separated. If a CSS URL is provided, the font will be loaded automatically.'}
-                </div>
-              </div>
+              )}
             </>
           )}
 
@@ -3012,19 +3074,7 @@ export default function Dashboard() {
                       <SectionOrderItem
                         key={key}
                         id={key}
-                        label={
-                          key === 'hero' ? '🖼️ الهيرو'
-                          : key === 'metrics' ? '📊 المؤشرات'
-                          : key === 'highlights' ? '✨ أبرز النقاط'
-                          : key === 'about' ? 'ℹ️ من نحن'
-                          : key === 'industries' ? '🏭 مجالات العمل'
-                          : key === 'services' ? '🛠️ الخدمات'
-                          : key === 'portfolio' ? '🗂️ سابقة الأعمال'
-                          : key === 'testimonials' ? '💬 آراء العملاء'
-                          : key === 'team' ? '👥 الفريق'
-                          : key === 'cta' ? '🚀 دعوة للإجراء'
-                          : '📞 التواصل'
-                        }
+                        label={LABELS[editLang]?.[key] || key}
                       />
                     ))}
                   </SortableContext>
