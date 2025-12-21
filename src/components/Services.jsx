@@ -24,7 +24,6 @@ export default function Services() {
               {svc.image ? (
                 <img src={svc.image} alt={t(svc.title)} className="service-image" loading="lazy" />
               ) : null}
-              <div className="icon">{svc.icon || '•'}</div>
               <h3 style={{ color: 'var(--section-body)' }}>{t(svc.title)}</h3>
               <p className="muted" style={{ color: 'var(--section-body)' }}>{t(svc.description)}</p>
             </div>

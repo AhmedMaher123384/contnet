@@ -311,7 +311,7 @@ const SectionOrderItem = ({ id, label }) => {
 }
 
 // عنصر خدمة قابل للسحب لإعادة الترتيب
-const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateServiceIcon, safeDelete, removeService }) => {
+const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, safeDelete, removeService }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id })
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -319,14 +319,7 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateSe
   }
   return (
     <div ref={setNodeRef} style={style} className="row-cta">
-      <div style={{ display: 'grid', gridTemplateColumns: '60px 220px 1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
-        <input
-          type="text"
-          value={svc.icon}
-          onChange={(e) => updateServiceIcon(i, e.target.value)}
-          style={{ textAlign: 'center', fontSize: '1.5rem' }}
-          placeholder="•"
-        />
+      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <URLInput
           label={editLang === 'ar' ? 'الصورة' : 'Image'}
           value={svc.image || ''}
@@ -2456,7 +2449,6 @@ export default function Dashboard() {
                             editLang={editLang}
                             dir={dir}
                             updateService={updateService}
-                            updateServiceIcon={updateServiceIcon}
                             safeDelete={safeDelete}
                             removeService={removeService}
                           />

@@ -110,8 +110,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 
 .services .grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
 .service-card { padding: 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--section-bg, var(--color-bg)) 85%, black 15%); border: 1px solid color-mix(in srgb, var(--section-body, var(--section-text, var(--color-text))) 15%, transparent); }
-.service-card .icon { font-size: 28px; }
-.service-card .service-image { width: 100%; height: auto; display: block; border-radius: var(--radius); margin-bottom: 10px; }
+.service-card .service-image { width: 100%; aspect-ratio: 16 / 9; height: auto; object-fit: cover; display: block; border-radius: var(--radius); margin-bottom: 10px; }
 .service-card h3 { margin: 10px 0 8px; font-size: 20px; font-family: var(--heading-font-family, var(--font-family, inherit)); color: var(--section-body, var(--section-text, var(--color-text))); }
 .service-card p { margin: 0; opacity: 0.9; color: var(--section-body, var(--section-text, var(--color-text))); }
 @media (max-width: 960px) { .services .grid { grid-template-columns: 1fr 1fr; } }
