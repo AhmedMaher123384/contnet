@@ -10,7 +10,9 @@ export default function Metrics() {
     '--section-primary': colors.primary || 'var(--color-primary)',
     '--section-secondary': colors.secondary || 'var(--color-secondary)',
     '--section-bg': colors.background || 'var(--color-bg)',
-    '--section-text': colors.text || 'var(--color-text)'
+    '--section-text': colors.text || 'var(--color-text)',
+    '--section-body': colors.body || colors.text || 'var(--color-text)',
+    '--section-heading': colors.heading || 'var(--section-body)'
   }
   const items = Array.isArray(section.items) ? section.items : []
   return (
@@ -20,7 +22,7 @@ export default function Metrics() {
           {items.map((m, i) => (
             <div key={i} className="metric">
               <div className="metric-value">{m.value}</div>
-              <div className="metric-label">{t(m.label)}</div>
+              <div className="metric-label" style={{ color: 'var(--section-body)' }}>{t(m.label)}</div>
             </div>
           ))}
         </div>

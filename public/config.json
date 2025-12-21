@@ -53,7 +53,7 @@
           "description": { "en": "End‑to‑end assistance before and after sales.", "ar": "مساندة شاملة قبل وبعد البيع." }
         }
       ],
-      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "navbar": {
       "enabled": true,
@@ -112,7 +112,7 @@
         { "en": "Our commitment to quality and customer satisfaction has made us a trusted partner for businesses worldwide.", "ar": "التزامنا بالجودة ورضا العملاء جعلنا شريكاً موثوقاً للشركات حول العالم." }
       ],
       "image": "",
-      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "metrics": {
       "enabled": true,
@@ -122,7 +122,7 @@
         { "label": { "en": "Satisfaction Rate", "ar": "نسبة الرضا" }, "value": "97%" },
         { "label": { "en": "Countries Served", "ar": "الدول المخدومة" }, "value": "50+" }
       ],
-      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "services": {
       "enabled": true,
@@ -133,7 +133,7 @@
         { "title": { "en": "Sourcing & Verification", "ar": "البحث والتحقق" }, "description": { "en": "Product sourcing, alternative pricing, pre‑delivery inspection, document verification, certifications.", "ar": "البحث عن المنتجات، تقديم أسعار بديلة، فحص قبل التسليم، التحقق من المستندات، تقديم شهادات." }, "icon": "🔎" },
         { "title": { "en": "Advisory", "ar": "نصائح وخبرات" }, "description": { "en": "Financial tips to save time and money, and marketing expertise.", "ar": "نصائح مالية لتوفير الوقت والمال، وخبرة تسويقية للوصول لقاعدة العملاء." }, "icon": "📈" }
       ],
-      "colors": { "primary": "", "secondary": "", "background": "", "text": "" }
+      "colors": { "primary": "", "secondary": "", "background": "", "text": "", "body": "", "heading": "" }
     },
     "industries": {
       "enabled": true,

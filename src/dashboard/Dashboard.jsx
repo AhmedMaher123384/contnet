@@ -2364,7 +2364,8 @@ export default function Dashboard() {
                 <ColorInput label="الأساسي" value={cfg.sections.about.colors.primary || ''} onChange={(v) => setSectionColor('about', 'primary', v)} />
                 <ColorInput label="الثانوي" value={cfg.sections.about.colors.secondary || ''} onChange={(v) => setSectionColor('about', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.about.colors.background || ''} onChange={(v) => setSectionColor('about', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.about.colors.text || ''} onChange={(v) => setSectionColor('about', 'text', v)} required />
+                <ColorInput label="النص" value={(cfg.sections.about.colors?.body || cfg.sections.about.colors?.text || '')} onChange={(v) => setSectionColor('about', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.about.colors?.heading || '')} onChange={(v) => setSectionColor('about', 'heading', v)} />
               </div>
             </div>
           )}
@@ -2464,7 +2465,8 @@ export default function Dashboard() {
                 <ColorInput label="الأساسي" value={cfg.sections.services.colors.primary || ''} onChange={(v) => setSectionColor('services', 'primary', v)} />
                 <ColorInput label="الثانوي" value={cfg.sections.services.colors.secondary || ''} onChange={(v) => setSectionColor('services', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.services.colors.background || ''} onChange={(v) => setSectionColor('services', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.services.colors.text || ''} onChange={(v) => setSectionColor('services', 'text', v)} required />
+                <ColorInput label="النص" value={(cfg.sections.services.colors?.body || cfg.sections.services.colors?.text || '')} onChange={(v) => setSectionColor('services', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.services.colors?.heading || '')} onChange={(v) => setSectionColor('services', 'heading', v)} />
               </div>
             </div>
           )}
@@ -2514,7 +2516,8 @@ export default function Dashboard() {
                 <ColorInput label="الأساسي" value={cfg.sections.metrics.colors.primary || ''} onChange={(v) => setSectionColor('metrics', 'primary', v)} />
                 <ColorInput label="الثانوي" value={cfg.sections.metrics.colors.secondary || ''} onChange={(v) => setSectionColor('metrics', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.metrics.colors.background || ''} onChange={(v) => setSectionColor('metrics', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.metrics.colors.text || ''} onChange={(v) => setSectionColor('metrics', 'text', v)} required />
+                <ColorInput label="النص" value={(cfg.sections.metrics.colors?.body || cfg.sections.metrics.colors?.text || '')} onChange={(v) => setSectionColor('metrics', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.metrics.colors?.heading || '')} onChange={(v) => setSectionColor('metrics', 'heading', v)} />
               </div>
             </div>
           )}
@@ -2591,7 +2594,8 @@ export default function Dashboard() {
                 <ColorInput label="الأساسي" value={cfg.sections.highlights?.colors?.primary || ''} onChange={(v) => setSectionColor('highlights', 'primary', v)} />
                 <ColorInput label="الثانوي" value={cfg.sections.highlights?.colors?.secondary || ''} onChange={(v) => setSectionColor('highlights', 'secondary', v)} />
                 <ColorInput label="الخلفية" value={cfg.sections.highlights?.colors?.background || ''} onChange={(v) => setSectionColor('highlights', 'background', v)} />
-                <ColorInput label="النص" value={cfg.sections.highlights?.colors?.text || ''} onChange={(v) => setSectionColor('highlights', 'text', v)} required />
+                <ColorInput label="النص" value={(cfg.sections.highlights?.colors?.body || cfg.sections.highlights?.colors?.text || '')} onChange={(v) => setSectionColor('highlights', 'body', v)} />
+                <ColorInput label="العنوان" value={(cfg.sections.highlights?.colors?.heading || '')} onChange={(v) => setSectionColor('highlights', 'heading', v)} />
               </div>
             </div>
           )}

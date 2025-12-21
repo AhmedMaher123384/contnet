@@ -73,7 +73,7 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 }
 
 .section { padding: 64px 0; }
-.section h2 { font-size: 28px; margin-bottom: 16px; font-family: var(--heading-font-family, var(--font-family, inherit)); }
+.section h2 { font-size: 28px; margin-bottom: 16px; font-family: var(--heading-font-family, var(--font-family, inherit)); color: var(--section-heading, var(--section-text, var(--color-text))); }
 .muted { opacity: 0.85; }
 @media (max-width: 640px) { .section { padding: 36px 0; } }
 
@@ -105,14 +105,14 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 .hero-dots .dot.active { background: var(--section-primary); border-color: var(--section-primary); }
 
 .about .grid { display: grid; gap: 24px; grid-template-columns: 1.1fr 0.9fr; }
-.card { background: color-mix(in srgb, var(--color-bg) 90%, black 10%); border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.card { background: color-mix(in srgb, var(--section-bg, var(--color-bg)) 90%, black 10%); border: 1px solid color-mix(in srgb, var(--section-body, var(--section-text, var(--color-text))) 15%, transparent); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .about img { width: 100%; border-radius: var(--radius); display: block; }
 
 .services .grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
-.service-card { padding: 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--color-bg) 85%, black 15%); border: 1px solid color-mix(in srgb, var(--color-text) 15%, transparent); }
+.service-card { padding: 20px; border-radius: var(--radius); background: color-mix(in srgb, var(--section-bg, var(--color-bg)) 85%, black 15%); border: 1px solid color-mix(in srgb, var(--section-body, var(--section-text, var(--color-text))) 15%, transparent); }
 .service-card .icon { font-size: 28px; }
-.service-card h3 { margin: 10px 0 8px; font-size: 20px; font-family: var(--heading-font-family, var(--font-family, inherit)); }
-.service-card p { margin: 0; opacity: 0.9; }
+.service-card h3 { margin: 10px 0 8px; font-size: 20px; font-family: var(--heading-font-family, var(--font-family, inherit)); color: var(--section-body, var(--section-text, var(--color-text))); }
+.service-card p { margin: 0; opacity: 0.9; color: var(--section-body, var(--section-text, var(--color-text))); }
 @media (max-width: 960px) { .services .grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .services .grid { grid-template-columns: 1fr; } .service-card { padding: 16px; } }
 
@@ -174,11 +174,11 @@ body { margin: 0; background: var(--color-bg); color: var(--color-text); font-fa
 @media (max-width: 640px) { .services .grid { grid-template-columns: 1fr; } }
 
 /* --- New Sections --- */
-.metrics { padding: 40px 0; color: var(--section-text, var(--color-text)); }
+.metrics { padding: 40px 0; color: var(--section-body, var(--section-text, var(--color-text))); }
 .metrics-grid { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); }
-.metric { text-align: center; padding: 18px; border-radius: var(--radius); background: color-mix(in srgb, var(--section-bg, var(--color-bg)) 85%, black 15%); border: 1px solid color-mix(in srgb, var(--section-text, var(--color-text)) 15%, transparent); }
+.metric { text-align: center; padding: 18px; border-radius: var(--radius); background: color-mix(in srgb, var(--section-bg, var(--color-bg)) 85%, black 15%); border: 1px solid color-mix(in srgb, var(--section-body, var(--section-text, var(--color-text))) 15%, transparent); }
 .metric-value { font-size: 24px; font-weight: 800; font-family: var(--heading-font-family, var(--font-family, inherit)); color: var(--section-primary, var(--color-primary)); }
-.metric-label { opacity: 0.85; }
+.metric-label { opacity: 0.85; color: var(--section-body, var(--section-text, var(--color-text))); }
 @media (max-width: 960px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .metrics-grid { grid-template-columns: 1fr; } }
 

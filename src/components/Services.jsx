@@ -10,18 +10,20 @@ export default function Services() {
     '--section-primary': colors.primary || 'var(--color-primary)',
     '--section-secondary': colors.secondary || 'var(--color-secondary)',
     '--section-bg': colors.background || 'var(--color-bg)',
-    '--section-text': colors.text || 'var(--color-text)'
+    '--section-text': colors.text || 'var(--color-text)',
+    '--section-body': colors.body || colors.text || 'var(--color-text)',
+    '--section-heading': colors.heading || 'var(--section-body)'
   }
   return (
     <section id="services" className="services section" style={style}>
       <div className="container">
-        <h2 style={{ color: 'var(--section-text)' }}>{t(services.heading)}</h2>
+        <h2 style={{ color: 'var(--section-heading)' }}>{t(services.heading)}</h2>
         <div className="grid">
           {(services.items || []).map((svc, i) => (
             <div className="service-card" key={i}>
               <div className="icon">{svc.icon || '•'}</div>
-              <h3 style={{ color: 'var(--section-text)' }}>{t(svc.title)}</h3>
-              <p className="muted" style={{ color: 'var(--section-text)' }}>{t(svc.description)}</p>
+              <h3 style={{ color: 'var(--section-body)' }}>{t(svc.title)}</h3>
+              <p className="muted" style={{ color: 'var(--section-body)' }}>{t(svc.description)}</p>
             </div>
           ))}
         </div>

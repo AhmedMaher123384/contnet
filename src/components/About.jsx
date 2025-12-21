@@ -10,16 +10,18 @@ export default function About() {
     '--section-primary': colors.primary || 'var(--color-primary)',
     '--section-secondary': colors.secondary || 'var(--color-secondary)',
     '--section-bg': colors.background || 'var(--color-bg)',
-    '--section-text': colors.text || 'var(--color-text)'
+    '--section-text': colors.text || 'var(--color-text)',
+    '--section-body': colors.body || colors.text || 'var(--color-text)',
+    '--section-heading': colors.heading || 'var(--section-body)'
   }
   return (
     <section id="about" className="about section" style={style}>
       <div className="container">
-        <h2 style={{ color: 'var(--section-text)' }}>{t(about.heading)}</h2>
+        <h2 style={{ color: 'var(--section-heading)' }}>{t(about.heading)}</h2>
         <div className="grid">
           <div className="card">
             {(about.paragraphs || []).map((p, i) => (
-              <p key={i} className="muted" style={{ color: 'var(--section-text)' }}>{t(p)}</p>
+              <p key={i} className="muted" style={{ color: 'var(--section-body)' }}>{t(p)}</p>
             ))}
           </div>
           <div>
