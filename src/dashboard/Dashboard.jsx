@@ -319,13 +319,21 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, updateSe
   }
   return (
     <div ref={setNodeRef} style={style} className="row-cta">
-      <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 1fr auto auto auto', gap: 10, alignItems: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '60px 220px 1fr 1fr auto auto', gap: 10, alignItems: 'center' }}>
         <input
           type="text"
           value={svc.icon}
           onChange={(e) => updateServiceIcon(i, e.target.value)}
           style={{ textAlign: 'center', fontSize: '1.5rem' }}
           placeholder="•"
+        />
+        <URLInput
+          label={editLang === 'ar' ? 'الصورة' : 'Image'}
+          value={svc.image || ''}
+          onChange={(v) => { cfg.sections.services.items[i].image = v; setConfig(cfg); }}
+          placeholder={editLang === 'ar' ? 'رابط الصورة أو رفع' : 'Image URL or upload'}
+          accept="image/*"
+          required={false}
         />
         <TextInput
           label="العنوان"
@@ -962,6 +970,7 @@ export default function Dashboard() {
       title: { en: '', ar: '' },
       description: { en: '', ar: '' },
       icon: '•',
+      image: ''
     });
     setConfig(cfg);
   };
