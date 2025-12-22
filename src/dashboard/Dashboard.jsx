@@ -345,7 +345,7 @@ const ServiceRowSortable = ({ id, svc, i, editLang, dir, updateService, safeDele
         <URLInput
           label={editLang === 'ar' ? 'الصورة' : 'Image'}
           value={svc.image || ''}
-          onChange={(v) => { cfg.sections.services.items[i].image = v; setConfig(cfg); }}
+          onChange={(v) => updateService(i, 'image', v)}
           placeholder={editLang === 'ar' ? 'رابط الصورة أو رفع' : 'Image URL or upload'}
           accept="image/*"
           required={false}
@@ -989,7 +989,15 @@ export default function Dashboard() {
     });
     setConfig(cfg);
   };
-  const updateService = (i, field, v) => { cfg.sections.services.items[i][field][editLang] = v; setConfig(cfg); };
+  const updateService = (i, field, v) => {
+    const item = cfg.sections.services.items[i]
+    if (item && typeof item[field] === 'object' && item[field] !== null) {
+      item[field][editLang] = v
+    } else {
+      item[field] = v
+    }
+    setConfig(cfg)
+  };
   const updateServiceIcon = (i, v) => { cfg.sections.services.items[i].icon = v; setConfig(cfg); };
   const removeService = (i) => {
     cfg.sections.services.items.splice(i, 1);
