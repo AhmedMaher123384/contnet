@@ -170,7 +170,16 @@ const UploadImageButton = ({ onUpload, accept = 'image/*' }) => {
         fd.append('upload_preset', uploadPreset)
         if (folder) fd.append('folder', folder)
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, { method: 'POST', body: fd })
-        if (!res.ok) throw new Error('فشل الرفع غير الموقّع')
+        if (!res.ok) {
+          let detail = ''
+          try {
+            const errData = await res.json()
+            detail = errData?.error?.message || JSON.stringify(errData)
+          } catch (_) {
+            try { detail = await res.text() } catch {}
+          }
+          throw new Error(`فشل الرفع غير الموقّع: ${detail || res.status}`)
+        }
         const data = await res.json()
         return data.secure_url || data.url
       }
@@ -182,7 +191,11 @@ const UploadImageButton = ({ onUpload, accept = 'image/*' }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ timestamp, folder })
         })
-        if (!resSign.ok) throw new Error('فشل الحصول على التوقيع')
+        if (!resSign.ok) {
+          let detail = ''
+          try { detail = await resSign.text() } catch {}
+          throw new Error(`فشل الحصول على التوقيع: ${detail || resSign.status}`)
+        }
         const { signature, api_key: keyFromWorker, cloud_name: cloudFromWorker, timestamp: tsFromWorker } = await resSign.json()
         const fd = new FormData()
         fd.append('file', file)
@@ -191,7 +204,16 @@ const UploadImageButton = ({ onUpload, accept = 'image/*' }) => {
         if (folder) fd.append('folder', folder)
         fd.append('signature', signature)
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudFromWorker || cloudName}/auto/upload`, { method: 'POST', body: fd })
-        if (!res.ok) throw new Error('فشل الرفع الموقّع')
+        if (!res.ok) {
+          let detail = ''
+          try {
+            const errData = await res.json()
+            detail = errData?.error?.message || JSON.stringify(errData)
+          } catch (_) {
+            try { detail = await res.text() } catch {}
+          }
+          throw new Error(`فشل الرفع الموقّع: ${detail || res.status}`)
+        }
         const data = await res.json()
         return data.secure_url || data.url
       }
@@ -204,12 +226,12 @@ const UploadImageButton = ({ onUpload, accept = 'image/*' }) => {
       } else if (canUnsigned) {
         url = await uploadUnsigned()
       } else {
-        alert('الرفع إلى Cloudinary غير مُعد. يُرجى إعداد "cloud_name" و"upload_preset" أو توفير "sign_url" للرفع الموقّع. لا يتم دعم التحويل إلى Base64 لتجنب مشاكل السعة.')
+        alert('الرفع إلى Cloudinary غير مُعد. يُرجى إعداد "cloud_name" و"upload_preset" أو توفير "sign_url". بديلًا، أدخل رابط صورة مباشر في الحقل.')
         return
       }
       onUpload(url)
     } catch (err) {
-      alert('حدث خطأ أثناء قراءة الملف.');
+      alert(err?.message ? err.message : 'حدث خطأ أثناء رفع/قراءة الملف. يُرجى التحقق من الإعدادات أو استخدام رابط مباشر.')
     }
   };
 
